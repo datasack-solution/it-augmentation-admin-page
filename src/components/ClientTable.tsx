@@ -5,8 +5,15 @@ import { Fragment, FunctionComponent, useEffect, useState } from "react";
 import EditForm from "./ClientForm";
 import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation } from "./hook";
 import { downloadCSV } from "./export";
+import { Admin } from "@/utils/adminApi";
 
-const ClientTable: FunctionComponent = () => {
+export interface ClientTableProps{
+    admin?:Admin
+}
+
+const ClientTable: FunctionComponent<ClientTableProps> = ({
+    admin
+}) => {
     const [searchValue, setSearchValue] = useState('');
     const [items, setItems] = useState<ClientRecord[]>([]);
     const [sortField, setSortField] = useState<string | undefined>(undefined);

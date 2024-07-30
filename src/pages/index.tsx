@@ -1,9 +1,22 @@
 import ClientTable from "@/components/ClientTable"
-import { EuiFlexGroup, EuiFlexItem, EuiImage, EuiPageTemplate, EuiText, EuiTitle } from "@elastic/eui"
+import { useAuthUser } from "@/utils/adminHook"
+import { isLoggedIn, logout } from "@/utils/auth"
+import { EuiBadge, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiImage, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
 import Head from "next/head"
-import { Fragment, FunctionComponent } from "react"
+import { useRouter } from "next/navigation"
+import { Fragment, FunctionComponent, useEffect } from "react"
 
 const AdminHomePage: FunctionComponent = () => {
+    const { data, mutateAsync: authAdmin } = useAuthUser()
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!!isLoggedIn){
+            router.push('/login')
+        }
+    }, [router, authAdmin]);
+
+
     return (
         <Fragment>
             <Head>
@@ -14,7 +27,7 @@ const AdminHomePage: FunctionComponent = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
-            <EuiPageTemplate
+             <EuiPageTemplate
                 panelled={true}
                 bottomBorder={true}
                 grow={true}
@@ -59,10 +72,28 @@ const AdminHomePage: FunctionComponent = () => {
 
 
                 <EuiPageTemplate.Section grow={false} bottomBorder={true}>
-                    <ClientTable />
+                    <EuiFlexGroup>
+                        <EuiFlexItem>
+                            <p style={{ fontWeight: 'bold' }}>Admin: <span style={{ color: 'green' }}>{data?.data.user.userName},</span></p>
+                            <EuiSpacer size="l" />
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                            <div onClick={() => {
+                                logout();
+                                router.push('/login')
+                            }}><EuiBadge style={{ cursor: 'pointer' }}><EuiButtonIcon aria-label="logout_button" iconType={'/logout.png'} ></EuiButtonIcon>Sign Out</EuiBadge></div>
+                        </EuiFlexItem>
+                    </EuiFlexGroup>
+                    <EuiSpacer size="s" />
+                    {data?.data.success && <ClientTable />}
+                    {!!data?.data.success && <>
+            You are not authorized to access this content
+            </>}
                 </EuiPageTemplate.Section>
 
             </EuiPageTemplate>
+          
+
         </Fragment>
     )
 }

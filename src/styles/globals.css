@@ -2,3 +2,32 @@
     color: white;
     background-color: #525151; 
   }
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-panel {
+  max-width: 350px;
+  width: 100%;
+  padding: 40px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); 
+}
+
+.login-panel .euiFormRow {
+  width: 100%;
+}
+
+.euiAvatar--xl {
+  margin-bottom: 20px;
+}
+
+.euiTitle--m {
+  text-align: center;
+}
+
+.euiFormRow__labelWrapper {
+  margin-bottom: 10px;
+}

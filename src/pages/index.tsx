@@ -7,7 +7,7 @@ const AdminHomePage: FunctionComponent = () => {
     return (
         <Fragment>
             <Head>
-                <title>Admin - Datasack Solution</title>
+                <title>Admin - Datasack Solutions</title>
                 <meta title="title" content="Datasack Solutions Admin Page" />
                 <meta name="description" content="Get the right talent at the right price. Find DataSack's IT Staff Augmentation Services in Dammam and Riyadh. Resolve skill shortages for project excellence." />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />

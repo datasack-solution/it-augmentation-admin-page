@@ -263,10 +263,10 @@ const ClientTable: FunctionComponent = () => {
                         onChange={e => setSearchValue(e.target.value)}
                         isClearable
                     />
-                    <div style={{display:'flex',cursor:'pointer'}} onClick={()=> downloadCSV(items,`client_records_${new Date().toLocaleDateString()}`)}>
-                <EuiIcon color="success" cursor='pointer'  type='exportAction' aria-label="exportCsv"/>
-                <EuiText size="s">&nbsp;Export as .csv</EuiText>
-                </div>
+                    {/* <div style={{display:'flex',cursor:'pointer'}} onClick={()=> downloadCSV(items,`client_records_${new Date().toLocaleDateString()}`)}>
+                <EuiIcon  color="success" cursor='pointer'  type='exportAction' aria-label="exportCsv"/>
+                <EuiText  size="s">&nbsp;Export as .csv</EuiText>
+                </div> */}
 
                 </EuiFlexGroup>
                 <EuiSpacer size="s" />

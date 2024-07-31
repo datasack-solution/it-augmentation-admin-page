@@ -1,19 +1,44 @@
 import ClientTable from "@/components/ClientTable"
+import { adminApi } from "@/utils/adminApi"
 import { useAuthUser } from "@/utils/adminHook"
 import { isLoggedIn, logout } from "@/utils/auth"
 import { EuiBadge, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiImage, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
 import Head from "next/head"
 import { useRouter } from "next/navigation"
 import { Fragment, FunctionComponent, useEffect } from "react"
+import { Cookies } from 'react-cookie';
+
+const cookies = new Cookies();
 
 const AdminHomePage: FunctionComponent = () => {
     const { data, mutateAsync: authAdmin } = useAuthUser()
     const router = useRouter();
 
-    useEffect(() => {
-        if (!!isLoggedIn){
+    const onSignOut = async () => {
+        try{
+            await adminApi.signout(data?.data.user.email || '')
             router.push('/login')
+        }catch(e){
+            console.log("signout failed: ",e)
+        }   
+    }
+
+    useEffect(() => {
+        console.log("cookies token from client: ",cookies.get('token'))
+        // if (!!isLoggedIn){
+        //     router.push('/login')
+        // }
+        const validateSession = async () =>{
+            try{
+            //   const res=  await adminApi.validateSession()
+            //   console.log("session cookie: ",res.data.name)
+            await authAdmin()
+            }catch(e){
+                console.log("session not found: "+e)
+                router.push('/login')
+            }
         }
+        validateSession()
     }, [router, authAdmin]);
 
 
@@ -79,14 +104,15 @@ const AdminHomePage: FunctionComponent = () => {
                         </EuiFlexItem>
                         <EuiFlexItem grow={false}>
                             <div onClick={() => {
-                                logout();
-                                router.push('/login')
+                                // logout();
+                                // router.push('/login')
+                                onSignOut()
                             }}><EuiBadge style={{ cursor: 'pointer' }}><EuiButtonIcon aria-label="logout_button" iconType={'/logout.png'} ></EuiButtonIcon>Sign Out</EuiBadge></div>
                         </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
                     {data?.data.success && <ClientTable />}
-                    {!!data?.data.success && <>
+                    {!data?.data.success && <>
             You are not authorized to access this content
             </>}
                 </EuiPageTemplate.Section>

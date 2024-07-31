@@ -1,4 +1,4 @@
-import axios, {AxiosResponse} from 'axios'
+import axios, {Axios, AxiosResponse} from 'axios'
 
 export interface Admin{
     email:string,
@@ -13,11 +13,13 @@ export interface UserAPI{
     verifyOTP:(email:string,otp:string)=>Promise<AxiosResponse>
     resetPassword:(email:string,password:string)=>Promise<AxiosResponse>
     updateAdmin:(email:string,password:string,userName:string)=>Promise<AxiosResponse>
+    signout:(email:string)=>Promise<AxiosResponse>
 }
 
 const BASE_URL = "https://it-augmentation-server.vercel.app"
+// const BASE_URL = "http://localhost:4000"
 
-class UserAPIService implements UserAPI{ 
+class UserAPIService implements UserAPI{
      async login (user:Admin): Promise<AxiosResponse>{
          return await axios.post(`${BASE_URL}/signin-email`,{...user},{withCredentials:true,headers:{
              "Content-Type":"application/json"
@@ -46,6 +48,10 @@ class UserAPIService implements UserAPI{
          return await axios.put(`${BASE_URL}/update-user`,{
             email,password,userName
          })
+     }
+
+     async signout (email:string):Promise<AxiosResponse>{
+        return await axios.post(`${BASE_URL}/signout`,{email},{withCredentials:true})
      }
  }
  

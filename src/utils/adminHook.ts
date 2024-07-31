@@ -23,6 +23,7 @@ export const useAuthUser = () => {
     ()=> adminApi.authToken(),
     {
       onSuccess: () => {
+        console.log("success on user auth")
         queryClient.invalidateQueries('userDetails');
       },
       onError: (e) => {

@@ -1,4 +1,4 @@
-import { useEmailSigninMutation } from '@/utils/adminHook';
+import { useAuthUser, useEmailSigninMutation } from '@/utils/adminHook';
 import {
   EuiButton,
   EuiFieldPassword,
@@ -15,12 +15,15 @@ import {
   EuiTitle
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
 
 const Login = () => {
   const { isLoading: isEmailSigninLoading, isError: isEmailSigninError, error: emailSigninError,isSuccess:isEmailSigninSuccess, mutateAsync: emailSigninMutation } = useEmailSigninMutation()
-    const [email, setEmail] = useState('');
+  const { data, mutateAsync: authAdmin } = useAuthUser()
+  const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const router = useRouter()
     const handleLogin = async () =>{
       try{
         await emailSigninMutation({
@@ -33,6 +36,18 @@ const Login = () => {
       }
     }
     
+  useEffect(()=>{
+    const checkUserHasASession = async () =>{
+      try{
+        await authAdmin()
+        router.push('/')
+      }catch(e){
+        console.log("err on auth admin")
+        router.push('/login')
+      }
+    }
+    checkUserHasASession()
+  },[router,authAdmin])
   return (
     <div className="login-container">
       <EuiPanel className="login-panel">

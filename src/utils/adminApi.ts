@@ -13,7 +13,7 @@ export interface UserAPI{
     verifyOTP:(email:string,otp:string)=>Promise<AxiosResponse>
     resetPassword:(email:string,password:string)=>Promise<AxiosResponse>
     updateAdmin:(email:string,password:string,userName:string)=>Promise<AxiosResponse>
-    signout:(email:string)=>Promise<AxiosResponse>
+    // signout:(email:string)=>Promise<AxiosResponse>
 }
 
 const BASE_URL = "https://it-augmentation-server.vercel.app"
@@ -26,9 +26,10 @@ class UserAPIService implements UserAPI{
          }})
      }
 
-     async authToken ():Promise<AxiosResponse>{
+     async authToken (token:string):Promise<AxiosResponse>{
          return await axios.post(`${BASE_URL}/auth-user`,{},{withCredentials:true,headers:{
-             "Content-Type":"application/json"
+             "Content-Type":"application/json",
+             "Authorization":`Bearer ${token}`
          }})
      }
  
@@ -50,9 +51,9 @@ class UserAPIService implements UserAPI{
          })
      }
 
-     async signout (email:string):Promise<AxiosResponse>{
-        return await axios.post(`${BASE_URL}/signout`,{email},{withCredentials:true})
-     }
+    //  async signout (email:string):Promise<AxiosResponse>{
+    //     return await axios.post(`${BASE_URL}/signout`,{email},{withCredentials:true})
+    //  }
  }
  
 

@@ -16,11 +16,11 @@ export const useAuthUser = () => {
   return useMutation<
   AxiosResponse<{ message: string, success: boolean, user: Admin }, AxiosError<AxiosErrorType>>, 
   AxiosError<AxiosErrorType>, 
-  void,
+  string,
   unknown
   >(
     'authenticateUser', 
-    ()=> adminApi.authToken(),
+    (token:string)=> adminApi.authToken(token),
     {
       onSuccess: () => {
         console.log("success on user auth")
@@ -94,6 +94,7 @@ export const useEmailSigninMutation = () => {
     {
       onSuccess: (data) => {
         queryClient.invalidateQueries('userLogin');
+        localStorage.setItem('token',data.data.token)
         setTimeout(() => {
           router.push('/')
         }, 500)

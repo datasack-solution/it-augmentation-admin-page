@@ -1,22 +1,21 @@
 import ClientTable from "@/components/ClientTable"
-import { adminApi } from "@/utils/adminApi"
 import { useAuthUser } from "@/utils/adminHook"
-import { isLoggedIn, logout } from "@/utils/auth"
 import { EuiBadge, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiImage, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
 import Head from "next/head"
 import { useRouter } from "next/navigation"
-import { Fragment, FunctionComponent, useEffect } from "react"
-import { Cookies } from 'react-cookie';
+import { Fragment, FunctionComponent, useEffect, useState } from "react"
+import { Cookies } from 'react-cookie'
 
 const cookies = new Cookies();
 
 const AdminHomePage: FunctionComponent = () => {
     const { data, mutateAsync: authAdmin } = useAuthUser()
+    const [token,setToken]=useState<string|null>(null)
     const router = useRouter();
-
     const onSignOut = async () => {
         try{
-            await adminApi.signout(data?.data.user.email || '')
+            localStorage.removeItem('token')
+            // await adminApi.signout(data?.data.user.email || '')
             router.push('/login')
         }catch(e){
             console.log("signout failed: ",e)
@@ -28,17 +27,24 @@ const AdminHomePage: FunctionComponent = () => {
         // if (!!isLoggedIn){
         //     router.push('/login')
         // }
-        const validateSession = async () =>{
+        const validateSession = async (token:string) =>{
             try{
             //   const res=  await adminApi.validateSession()
             //   console.log("session cookie: ",res.data.name)
-            await authAdmin()
+            await authAdmin(token)
             }catch(e){
                 console.log("session not found: "+e)
                 router.push('/login')
             }
         }
-        validateSession()
+        const token = window.localStorage.getItem('token');
+        setToken(token)
+        if (token==null){
+            router.push('/login')
+        }
+        if (token!=null){
+            validateSession(token)
+        }
     }, [router, authAdmin]);
 
 
@@ -111,8 +117,8 @@ const AdminHomePage: FunctionComponent = () => {
                         </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
-                    {data?.data.success && <ClientTable />}
-                    {!data?.data.success && <>
+                    {token!=null && <ClientTable />}
+                    {token==null && <>
             You are not authorized to access this content
             </>}
                 </EuiPageTemplate.Section>

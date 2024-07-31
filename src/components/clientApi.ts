@@ -7,8 +7,8 @@ interface ClientAPI{
     deleteClient: (clientEmail:string)=>Promise<void>
 }
 
-// const url = 'https://it-augmentation-server.vercel.app'
-const url = 'http://localhost:4000'
+const url = 'https://it-augmentation-server.vercel.app'
+// const url = 'http://localhost:4000'
 
 class ClientAPIService implements ClientAPI{
    async getClients (): Promise<ClientRecord[]>{

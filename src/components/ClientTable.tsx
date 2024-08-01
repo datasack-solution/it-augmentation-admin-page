@@ -4,7 +4,7 @@ import { EuiBadge, EuiBasicTable, EuiBasicTableColumn, EuiButton, EuiButtonIcon,
 import { Fragment, FunctionComponent, useEffect, useState } from "react";
 import EditForm from "./ClientForm";
 import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation } from "./hook";
-import { downloadCSV } from "./export";
+import { downloadCSV, downloadExcel } from "./export";
 import { Admin } from "@/utils/adminApi";
 
 export interface ClientTableProps{
@@ -270,10 +270,15 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
                         onChange={e => setSearchValue(e.target.value)}
                         isClearable
                     />
-                    {/* <div style={{display:'flex',cursor:'pointer'}} onClick={()=> downloadCSV(items,`client_records_${new Date().toLocaleDateString()}`)}>
+                    <div style={{display:'flex',cursor:'pointer'}} onClick={()=> downloadCSV(items,`client_records_${new Date().toLocaleDateString()}`)}>
                 <EuiIcon  color="success" cursor='pointer'  type='exportAction' aria-label="exportCsv"/>
                 <EuiText  size="s">&nbsp;Export as .csv</EuiText>
-                </div> */}
+                </div>
+
+                <div style={{display:'flex',cursor:'pointer'}} onClick={()=> downloadExcel(items,`client_records_${new Date().toLocaleDateString()}`)}>
+                <EuiIcon  color="success" cursor='pointer'  type='exportAction' aria-label="exportXlsx"/>
+                <EuiText  size="s">&nbsp;Export as .xlsx</EuiText>
+                </div>
 
                 </EuiFlexGroup>
                 <EuiSpacer size="s" />

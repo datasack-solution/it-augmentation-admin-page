@@ -16,11 +16,11 @@ import {
 } from '@elastic/eui';
 import '@elastic/eui/dist/eui_theme_light.css';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Login = () => {
   const { isLoading: isEmailSigninLoading, isError: isEmailSigninError, error: emailSigninError,isSuccess:isEmailSigninSuccess, mutateAsync: emailSigninMutation } = useEmailSigninMutation()
-  // const { data, mutateAsync: authAdmin } = useAuthUser()
+  const { data, mutateAsync: authAdmin } = useAuthUser()
   const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter()
@@ -36,18 +36,26 @@ const Login = () => {
       }
     }
     
-  // useEffect(()=>{
-  //   const checkUserHasASession = async () =>{
-  //     try{
-  //       await authAdmin()
-  //       router.push('/')
-  //     }catch(e){
-  //       console.log("err on auth admin")
-  //       router.push('/login')
-  //     }
-  //   }
-  //   checkUserHasASession()
-  // },[router,authAdmin])
+    useEffect(() => {
+      const validateSession = async (token: string) => {
+          try {
+              await authAdmin(token)
+              router.push('/')
+          } catch (e) {
+              console.log("session not found: " + e)
+              router.push('/login')
+          }
+      }
+      const token = window.localStorage.getItem('token');
+
+      if (token == null) {
+          router.push('/login')
+      }
+      if (token != null) {
+          validateSession(token)
+      }
+  }, [router, authAdmin]);
+
   return (
     <div className="login-container">
       <EuiPanel className="login-panel">

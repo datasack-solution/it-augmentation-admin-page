@@ -1,48 +1,38 @@
 import ClientTable from "@/components/ClientTable"
 import { useAuthUser } from "@/utils/adminHook"
-import { EuiBadge, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiImage, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
+import { EuiBadge, EuiButton, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiImage, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
 import Head from "next/head"
 import { useRouter } from "next/navigation"
 import { Fragment, FunctionComponent, useEffect, useState } from "react"
-import { Cookies } from 'react-cookie'
-
-const cookies = new Cookies();
 
 const AdminHomePage: FunctionComponent = () => {
     const { data, mutateAsync: authAdmin } = useAuthUser()
-    const [token,setToken]=useState<string|null>(null)
+    const [token, setToken] = useState<string | null>(null)
     const router = useRouter();
     const onSignOut = async () => {
-        try{
+        try {
             localStorage.removeItem('token')
-            // await adminApi.signout(data?.data.user.email || '')
             router.push('/login')
-        }catch(e){
-            console.log("signout failed: ",e)
-        }   
+        } catch (e) {
+            console.log("signout failed: ", e)
+        }
     }
 
     useEffect(() => {
-        console.log("cookies token from client: ",cookies.get('token'))
-        // if (!!isLoggedIn){
-        //     router.push('/login')
-        // }
-        const validateSession = async (token:string) =>{
-            try{
-            //   const res=  await adminApi.validateSession()
-            //   console.log("session cookie: ",res.data.name)
-            await authAdmin(token)
-            }catch(e){
-                console.log("session not found: "+e)
+        const validateSession = async (token: string) => {
+            try {
+                await authAdmin(token)
+            } catch (e) {
+                console.log("session not found: " + e)
                 router.push('/login')
             }
         }
         const token = window.localStorage.getItem('token');
         setToken(token)
-        if (token==null){
+        if (token == null) {
             router.push('/login')
         }
-        if (token!=null){
+        if (token != null) {
             validateSession(token)
         }
     }, [router, authAdmin]);
@@ -58,7 +48,7 @@ const AdminHomePage: FunctionComponent = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
-             <EuiPageTemplate
+            {token != null && <EuiPageTemplate
                 panelled={true}
                 bottomBorder={true}
                 grow={true}
@@ -117,14 +107,29 @@ const AdminHomePage: FunctionComponent = () => {
                         </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
-                    {token!=null && <ClientTable />}
-                    {token==null && <>
-            You are not authorized to access this content
-            </>}
+                    <ClientTable />
                 </EuiPageTemplate.Section>
 
-            </EuiPageTemplate>
-          
+            </EuiPageTemplate>}
+
+            {token == null && <>
+                <EuiModal aria-labelledby={"Error"} style={{ width: 800 }} onClose={() => { }}>
+                    <EuiModalHeader>
+                        <EuiModalHeaderTitle >Authorization Error <EuiIcon color="red" type='warning'/></EuiModalHeaderTitle>
+                    </EuiModalHeader>
+
+                    <EuiModalBody>
+                        <EuiText>You are not authorized to access this content</EuiText>
+                    </EuiModalBody>
+
+                    <EuiModalFooter>
+                        <EuiButton onClick={() => { }} fill>
+                            Close
+                        </EuiButton>
+                    </EuiModalFooter>
+                </EuiModal>
+            </>}
+
 
         </Fragment>
     )

@@ -7,8 +7,8 @@ import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation }
 import { downloadCSV, downloadExcel } from "./export";
 import { Admin } from "@/utils/adminApi";
 
-export interface ClientTableProps{
-    admin?:Admin
+export interface ClientTableProps {
+    admin?: Admin
 }
 
 const ClientTable: FunctionComponent<ClientTableProps> = ({
@@ -74,46 +74,56 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
 
     const getExpandedRowContent = (client: ClientRecord) => {
         return (
-            <div>
-                {client.skillsets?.predefinedTechData.length == 0 && client.skillsets.customTechsData?.length == 0 && <div>
-                    Sorry, client did not choose any technologies.
-                </div>}
-                {client.skillsets?.predefinedTechData && client.skillsets.predefinedTechData.length > 0 && <>
-                    <strong style={{ color: 'green' }}>Predefined Skillsets:</strong>
-                    {client.skillsets?.predefinedTechData.map((category, index) => (
-                        <div key={index} >
-                            <strong style={{ color: 'darkred' }}>-- {category.mainCategory} --</strong>
-                            {category.subcategories.map((subcategory, subIndex) => (
-                                <div key={subIndex} >
-                                    <EuiFlexGroup >
-                                        <EuiFlexItem grow={false}>
-                                            <strong>{subIndex + 1}.{subcategory.subcategory}:&nbsp;</strong>
-                                        </EuiFlexItem>
-                                        {subcategory.items.map((item, itemIndex) => (
-                                            <EuiFlexItem key={itemIndex} grow={false}>
-                                                <EuiText size="s"> {item.techName} ({item.quantity})</EuiText>
-                                            </EuiFlexItem>
-                                        ))}
-                                    </EuiFlexGroup>
+            <EuiFlexGroup>
+                <EuiFlexItem>
+                    <div style={{ fontSize: '13px' }}>
+                        {client.skillsets?.predefinedTechData && client.skillsets.predefinedTechData.length > 0 && <Fragment>
+                            <strong style={{ color: 'green' }}>Predefined Skillsets:</strong>
+                            {client.skillsets?.predefinedTechData.map((category, index) => (
+                                <div key={index} >
+                                    <strong style={{ color: 'darkred' }}>-- {category.mainCategory} --</strong>
+                                    {category.subcategories.map((subcategory, subIndex) => (
+                                        <div key={subIndex} >
+                                            <EuiFlexGroup >
+                                                <EuiFlexItem grow={false}>
+                                                    <strong>{subIndex + 1}.{subcategory.subcategory}:&nbsp;</strong>
+                                                </EuiFlexItem>
+                                                {subcategory.items.map((item, itemIndex) => (
+                                                    <EuiFlexItem key={itemIndex} grow={false}>
+                                                        <p> {item.techName} ({item.quantity})</p>
+                                                    </EuiFlexItem>
+                                                ))}
+                                            </EuiFlexGroup>
+                                        </div>
+                                    ))}
                                 </div>
                             ))}
-                        </div>
-                    ))}
 
-                </>
-                }
-                {(client.skillsets?.customTechsData != null && client.skillsets?.customTechsData.length != 0) &&
-                    <EuiFlexGroup>
-                        <strong style={{ color: 'darkgoldenrod' }}>Custom Skillsets: &nbsp;</strong>
-                        <EuiFlexGroup>
-                            {client.skillsets.customTechsData.map((customTech, index) => (
-                                <EuiFlexItem key={index} grow={false}>
-                                    {customTech.techName} ({customTech.quantity})
-                                </EuiFlexItem>
-                            ))}
-                        </EuiFlexGroup>
-                    </EuiFlexGroup>}
-            </div>
+                        </Fragment>
+                        }
+                        {(client.skillsets?.customTechsData != null && client.skillsets?.customTechsData.length != 0) &&
+                            <EuiFlexGroup>
+                                <strong style={{ color: 'green' }}>Custom Skillsets: &nbsp;</strong>
+                                <EuiFlexGroup>
+                                    {client.skillsets.customTechsData.map((customTech, index) => (
+                                        <EuiFlexItem key={index} grow={false}>
+                                            <p>{customTech.techName} ({customTech.quantity})</p>
+                                        </EuiFlexItem>
+                                    ))}
+                                </EuiFlexGroup>
+                            </EuiFlexGroup>}
+                    </div>
+                    {client.skillsets?.predefinedTechData.length == 0 && client.skillsets.customTechsData?.length == 0 && <div>
+                        Sorry, client did not choose any technologies.
+                    </div>}
+                </EuiFlexItem>
+                <EuiFlexItem>
+                    <div  style={{ fontSize: '13px' }}>
+                        <strong style={{ color: 'green' }}>Client Requirements:</strong>
+                        <div><p>{client.requirements}</p></div>
+                    </div>
+                </EuiFlexItem>
+            </EuiFlexGroup>
         );
     };
 
@@ -123,6 +133,9 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
             field: 'name',
             name: 'Name',
             sortable: true,
+            style: {
+                textTransform: 'capitalize'
+            },
         },
         {
             field: 'email',
@@ -138,10 +151,13 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
             field: 'industry',
             name: 'Industry',
             sortable: true,
+            style: {
+                textTransform: 'capitalize'
+            }
         },
         {
             name: 'Schedule',
-            sortable: () => true,
+            sortable: (client: ClientRecord) => new Date(client.date).getTime(),
             render: (client: ClientRecord) => {
                 const date = new Date(client.date);
                 const formattedDate = date.toLocaleString('en-US', {
@@ -157,13 +173,18 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
         },
         {
             field: 'city',
-            name: 'City',
             sortable: true,
+            name: 'City',
+            style: {
+                textTransform: 'capitalize'
+            },
+            render: (city: string) => (city && city.length > 0 ? city : '-'),
         },
         {
             field: 'contactedChannel',
             name: 'Contacted Channel',
             sortable: true,
+            render: (channel: string) => (channel && channel.length > 0 ? channel : '-')
         },
         {
             field: 'responded',
@@ -181,6 +202,7 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
             field: 'remarks',
             name: 'Remarks',
             sortable: false,
+            render: (remarks: string) => (remarks && remarks.length > 0 ? remarks : '-')
         },
 
         {
@@ -270,15 +292,15 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
                         onChange={e => setSearchValue(e.target.value)}
                         isClearable
                     />
-                    <div style={{display:'flex',cursor:'pointer'}} onClick={()=> downloadCSV(items,`client_records_${new Date().toLocaleDateString()}`)}>
-                <EuiIcon  color="success" cursor='pointer'  type='exportAction' aria-label="exportCsv"/>
-                <EuiText  size="s">&nbsp;Export as .csv</EuiText>
-                </div>
+                    <div style={{ display: 'flex', cursor: 'pointer' }} onClick={() => downloadCSV(items, `client_records_${new Date().toLocaleDateString()}`)}>
+                        <EuiIcon color="success" cursor='pointer' type='exportAction' aria-label="exportCsv" />
+                        <EuiText size="s">&nbsp;Export as .csv</EuiText>
+                    </div>
 
-                <div style={{display:'flex',cursor:'pointer'}} onClick={()=> downloadExcel(items,`client_records_${new Date().toLocaleDateString()}`)}>
-                <EuiIcon  color="success" cursor='pointer'  type='exportAction' aria-label="exportXlsx"/>
-                <EuiText  size="s">&nbsp;Export as .xlsx</EuiText>
-                </div>
+                    <div style={{ display: 'flex', cursor: 'pointer' }} onClick={() => downloadExcel(items, `client_records_${new Date().toLocaleDateString()}`)}>
+                        <EuiIcon color="success" cursor='pointer' type='exportAction' aria-label="exportXlsx" />
+                        <EuiText size="s">&nbsp;Export as .xlsx</EuiText>
+                    </div>
 
                 </EuiFlexGroup>
                 <EuiSpacer size="s" />

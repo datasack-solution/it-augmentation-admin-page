@@ -90,6 +90,14 @@ export const downloadCSV = (data: Array<ClientRecord>, fileName: string) => {
 };
 
 
+function capitalize(word:string):string{
+    const firstLetter = word.charAt(0)
+    const remainingLetters = word.substring(1)
+    const firstLetterCap = firstLetter.toUpperCase()
+    return firstLetterCap + remainingLetters
+
+}
+
 
 
 const convertToExcel = async (data: Array<ClientRecord>) => {
@@ -133,39 +141,43 @@ const convertToExcel = async (data: Array<ClientRecord>) => {
         // check if clientRecord has skillsets
         if (clientRecord.skillsets) {
             clientRecord.skillsets.predefinedTechData.forEach(mainCat => {
-                skillsetArray.push({ text: `${mainCat.mainCategory} --> `, color: 'FF0000' }); 
-                mainCat.subcategories.forEach(subCat => {
-                    skillsetArray.push({ text: ` ${subCat.subcategory} --> `, color: '000000' }); 
+                skillsetArray.push({ text: `${mainCat.mainCategory} \r`, color: 'FF0000' }); 
+                mainCat.subcategories.forEach((subCat,subCatIdx) => {
+                    if (subCatIdx!=0){
+                        skillsetArray.push({ text: `\r`, color: '000000' }); 
+                        }
+                    skillsetArray.push({ text: `${subCat.subcategory} --> `, color: '2980B9' }); 
                     subCat.items.forEach((item, subItemIdx) => {
-                        skillsetArray.push({ text: `${item.techName}`, color: 'FF9F06' }); 
-                        skillsetArray.push({ text: ` (Qty:${item.quantity})`, color: 'FC6904' }); 
+                        skillsetArray.push({ text: `${item.techName}`, color: 'BE44AD' }); 
+                        skillsetArray.push({ text: ` (Qty:${item.quantity})`, color: '000000' }); 
 
                         if (subItemIdx < subCat.items.length - 1) {
                             skillsetArray.push({ text: ' & ', color: '909090' });
                         }
                     });
                 });
-                skillsetArray.push({ text: ', ', color: '000000' });
+                skillsetArray.push({ text: '\r\n', color: '000000' });
             });
 
             if (clientRecord.skillsets.customTechsData) {
                 clientRecord.skillsets.customTechsData.forEach(customTech => {
-                    skillsetArray.push({ text: `Custom Tech: ${customTech.techName}`, color: 'FF9F06' });
-                    skillsetArray.push({ text: ` (Qty:${customTech.quantity})`, color: 'FC6904' }); 
+                    skillsetArray.push({ text: "Custom Tech:", color: 'FF0000' });
+                    skillsetArray.push({ text: ` ${customTech.techName}`, color: 'BE44AD' });
+                    skillsetArray.push({ text: ` (Qty:${customTech.quantity})`, color: '000000' }); 
 
                 });
             }
         }
 
         const row = [
-            clientRecord.industry,
-            clientRecord.name,
+            capitalize(clientRecord.industry),
+            capitalize(clientRecord.name),
             clientRecord.email,
             clientRecord.phone,
             clientRecord.date,
             clientRecord.requirements && clientRecord.requirements.length>0 ? clientRecord.requirements:'     -     ',
             clientRecord.nda ? '     Yes     ':'     No     ',
-            clientRecord.city && clientRecord.city.length>0 ? clientRecord.city :'     -     ',
+            clientRecord.city && clientRecord.city.length>0 ? capitalize(clientRecord.city) :'     -     ',
             clientRecord.contactedChannel && clientRecord.contactedChannel.length>0 ? clientRecord.contactedChannel : '     -     ',
             clientRecord.responded && clientRecord.responded ? (clientRecord.responded ? '    Yes    ':'    No    ') : '     -     ',
             clientRecord.isInterested ? '     Yes     ' : '     No     ',
@@ -174,6 +186,12 @@ const convertToExcel = async (data: Array<ClientRecord>) => {
 
         const dataRow = worksheet.addRow(row);
 
+        const hasSkillSetsValue=clientRecord.skillsets && clientRecord.skillsets.predefinedTechData.length>0 && clientRecord.skillsets.customTechsData && clientRecord.skillsets.customTechsData.length>0
+        if (hasSkillSetsValue){
+            dataRow.height=150
+        }
+
+        
         // update max column widths based on content
         row.forEach((cellValue, index) => {
             let cellLength = String(cellValue).length;
@@ -182,37 +200,26 @@ const convertToExcel = async (data: Array<ClientRecord>) => {
             }
         });
 
-        const hasSkillSetsValue=clientRecord.skillsets && clientRecord.skillsets.predefinedTechData.length>0 && clientRecord.skillsets.customTechsData && clientRecord.skillsets.customTechsData.length>0
+ 
         if (hasSkillSetsValue) {
-            //increase the height of the skillsets row
             const startRow = dataRow.number;
-            const endRow = startRow + 2; 
-            const startColumn = 13; 
-            const endColumn = startColumn + 10; 
+            const startColumn = 13;
 
-            worksheet.mergeCells(startRow, startColumn, endRow, endColumn);
-
-            
             const skillsetCell = worksheet.getCell(startRow, startColumn);
             skillsetCell.value = {
                 richText: skillsetArray.map(part => ({
                     text: part.text,
-                    font: { bold: true, color: { argb: part.color } }
+                    font: { bold: true, color: { argb: part.color } },
                 }))
             };
             skillsetCell.alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
-
-            // adjust row height for merged rows
-            for (let i = startRow; i <= endRow; i++) {
-                worksheet.getRow(i).height = 30;
-            }
         }
     });
 
     maxColumnWidths.forEach((width, index) => {
-        let calcWidth=width+2
+        let calcWidth=30
         if (headers.length-1==index){
-            calcWidth+=10
+            calcWidth=60 //increase the width of the column of skillsets
         }   
         worksheet.getColumn(index + 1).width = calcWidth; 
     });

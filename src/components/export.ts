@@ -180,7 +180,7 @@ const convertToExcel = async (data: Array<ClientRecord>) => {
             clientRecord.city && clientRecord.city.length>0 ? capitalize(clientRecord.city) :'     -     ',
             clientRecord.contactedChannel && clientRecord.contactedChannel.length>0 ? clientRecord.contactedChannel : '     -     ',
             clientRecord.responded && clientRecord.responded ? (clientRecord.responded ? '    Yes    ':'    No    ') : '     -     ',
-            clientRecord.isInterested ? '     Yes     ' : '     No     ',
+            clientRecord.isInterested  && clientRecord.isInterested ? (clientRecord.isInterested ? '    Yes    ':'    No    ') : '     -     ',
             clientRecord.remarks && clientRecord.remarks?.length>0 ? clientRecord.remarks:'     -     ',
         ];
 

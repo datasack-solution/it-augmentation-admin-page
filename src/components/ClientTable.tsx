@@ -190,13 +190,13 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
             field: 'responded',
             name: 'Responded',
             sortable: true,
-            render: (responded: boolean) => (responded ? 'Yes' : 'No'),
+            render: (responded: boolean) => (responded==undefined ? '-': (responded ? 'Yes':'No') ),
         },
         {
             field: 'isInterested',
             name: 'Interested',
             sortable: true,
-            render: (isInterested: boolean) => (isInterested ? <EuiBadge color="success">Yes</EuiBadge> : <EuiBadge color="warning">No</EuiBadge>),
+            render: (isInterested: boolean) => (isInterested==undefined ? '-':  isInterested ? <EuiBadge color="success">Yes</EuiBadge> : <EuiBadge color="warning">No</EuiBadge>),
         },
         {
             field: 'remarks',

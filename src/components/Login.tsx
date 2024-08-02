@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const Login = () => {
-  const { isLoading: isEmailSigninLoading, isError: isEmailSigninError, error: emailSigninError,isSuccess:isEmailSigninSuccess, mutateAsync: emailSigninMutation } = useEmailSigninMutation()
+  const { isLoading: isEmailSigninLoading, isError: isEmailSigninError, error: emailSigninError,isSuccess:isEmailSigninSuccess, mutateAsync: emailSigninMutation } = useEmailSigninMutation(false)
   const { data, mutateAsync: authAdmin } = useAuthUser()
   const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

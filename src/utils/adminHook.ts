@@ -85,7 +85,7 @@ export const useVerifyOTPMutation = () => {
   )
 }
 
-export const useEmailSigninMutation = () => {
+export const useEmailSigninMutation = (validatePassword:boolean) => {
   const queryClient = useQueryClient();
   const router = useRouter()
 
@@ -94,7 +94,9 @@ export const useEmailSigninMutation = () => {
     {
       onSuccess: (data) => {
         queryClient.invalidateQueries('userLogin');
-        localStorage.setItem('token',data.data.token)
+        if (!validatePassword){
+          localStorage.setItem('token',data.data.token)
+        }
         setTimeout(() => {
           router.push('/')
         }, 500)

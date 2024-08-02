@@ -1,4 +1,5 @@
 import ClientTable from "@/components/ClientTable"
+import ForgetPasswordModal from "@/components/ForgetPasswordModal"
 import { useAuthUser } from "@/utils/adminHook"
 import { EuiBadge, EuiButton, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiImage, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
 import Head from "next/head"
@@ -94,16 +95,15 @@ const AdminHomePage: FunctionComponent = () => {
 
                 <EuiPageTemplate.Section grow={false} bottomBorder={true}>
                     <EuiFlexGroup>
-                        <EuiFlexItem>
+                        <EuiFlexItem >
+                            <div>
                             <p style={{ fontWeight: 'bold' }}>Admin: <span style={{ color: 'green' }}>{data?.data.user.userName},</span></p>
+                            <ForgetPasswordModal user={data?.data.user}/>
+                            </div>
                             <EuiSpacer size="l" />
                         </EuiFlexItem>
                         <EuiFlexItem grow={false}>
-                            <div onClick={() => {
-                                // logout();
-                                // router.push('/login')
-                                onSignOut()
-                            }}><EuiBadge style={{ cursor: 'pointer' }}><EuiButtonIcon aria-label="logout_button" iconType={'/logout.png'} ></EuiButtonIcon>Sign Out</EuiBadge></div>
+                            <div onClick={onSignOut}><EuiBadge style={{ cursor: 'pointer' }}><EuiButtonIcon aria-label="logout_button" iconType={'/logout.png'} ></EuiButtonIcon>Sign Out</EuiBadge></div>
                         </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
@@ -129,6 +129,8 @@ const AdminHomePage: FunctionComponent = () => {
                     </EuiModalFooter>
                 </EuiModal>
             </>}
+
+
 
 
         </Fragment>

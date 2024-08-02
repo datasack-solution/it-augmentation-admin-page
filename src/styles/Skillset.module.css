@@ -1,0 +1,272 @@
+
+
+.mainCategory {
+    margin-bottom: 15px;
+    background-color: #fbf7f7;
+    width: fit-content;
+}
+
+.categoryHeader {
+    display: flex;
+    /* justify-content: space-between; */
+    align-items: center;
+    cursor: pointer;
+    background-color: transparent;
+    padding: 5px;
+    border-radius: 4px;
+    max-width: 370px;
+    transition: background-color 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.categoryHeader:hover {
+    background-color: #e0e0e0;
+}
+
+.downIcon {
+    margin-left: 5px;
+}
+
+.subCategory {
+    margin-top: 5px;
+}
+
+.subCategoryWrapper {
+    margin-bottom: 5px;
+}
+
+.subCategoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 2s ease;
+    max-width: 200px;
+    font-size: 15px;
+    background-color: transparent;
+} 
+
+.subCategoryHeader:hover {
+    background-color: #e0e0e0;
+}
+
+.techList {
+    margin-bottom: 10px;
+    padding: 10px;
+    }
+
+.techItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    width: 180px;
+}
+
+.quantityControls {
+    display: flex;
+    align-items: center;
+}
+
+.quantityDisplay {
+    margin: 0 10px;
+}
+
+.slidingPanel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    transition: transform 1s ease-out;
+    transform: translateY(100%);
+}
+
+.show {
+    transform: translateY(0%);
+}
+
+.slidingPanelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.selectedItems {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.show {
+    transform: translateY(0);
+}
+
+.slidingPanelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.selectedItems {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.selectedItem {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.removeButton {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.getPricingButton {
+    background-color: #ffc107;
+    border: none;
+    padding: 10px 20px;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.clearButton {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+} 
+
+.slidingWrap{
+    max-height: 100px;
+    overflow-y: scroll;
+}
+
+.pricing_mobile_view{
+    align-items: center;
+    justify-self: center;
+    margin: 0 auto;
+}
+
+
+.itStaffAugmentationService {
+    padding: 20px;
+    max-width: fit-content;
+}
+  
+  .category_group {
+    margin-bottom: 20px;
+    max-height: max-content;
+    align-items: start;
+    background-color: transparent;
+  }
+  
+  .tech_item {
+    margin-bottom: 5px;
+    align-items: center;
+  }
+  
+  
+  .quantity-display {
+    width: 30px;
+    text-align: center;
+  }
+  
+
+.slidingPanel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: auto;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  transform: translateY(100%); 
+  overflow-y: scroll;
+  overflow-x: hidden;
+  z-index: 99;
+}
+
+.slidingPanel.show {
+  transform: translateY(0);  
+}
+
+.slidingPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selectedItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#pricingPanel{
+    min-height: 300px;
+    background-color: transparent;
+    border: 0.2px ridge orange;
+    box-shadow: 0.15rem 0.15rem 0.4rem rgba(255, 166, 0, 0.405);
+}
+
+
+#pricingPanel {
+    user-select: none;
+    max-width: 200px;
+    margin: 0 auto;
+    border: 1px solid orange;
+    background-color: orange;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.666) 0%, rgba(202, 202, 202, 0.5) 100%);
+    box-shadow: 0 7px 20px 1px #00000088;
+    border-radius: 0.7rem;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    overflow: hidden;
+    transition: 0.5s all;
+    color: red;
+  }
+  
+  #pricingPanel::before {
+    position: fixed;
+    content: "";
+    box-shadow: 0 0 100px 40px #ffffffe5;
+    top: -10%;
+    left: -100%;
+    transform: rotate(-45deg);
+    height: 60rem;
+    transition: 0.7s all;
+  }
+  
+p#ricingPanel:hover {
+    border: 1px solid #f7f3f3ea;
+    box-shadow: 0 7px 50px 10px #ffffff;
+    transform: scale(1.015);
+    filter: brightness(100%);
+  }
+  
+  #pricingPanel:hover::before {
+    filter: brightness(1);
+    top: -100%;
+    left: 200%;
+  }
+  
+
+

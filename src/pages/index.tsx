@@ -1,4 +1,4 @@
-import ClientTable from "@/components/ClientTable"
+import ClientTableArrSkillSets from "@/components/ClientTableArrSkillSets"
 import ForgetPasswordModal from "@/components/ForgetPasswordModal"
 import { useAuthUser } from "@/utils/adminHook"
 import { EuiBadge, EuiButton, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiImage, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
@@ -107,7 +107,7 @@ const AdminHomePage: FunctionComponent = () => {
                         </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
-                    <ClientTable />
+                    <ClientTableArrSkillSets />
                 </EuiPageTemplate.Section>
 
             </EuiPageTemplate>}

@@ -23,14 +23,24 @@ const Login = () => {
   const { data, mutateAsync: authAdmin } = useAuthUser()
   const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [err,setErr]=useState<string|undefined>('')
     const router = useRouter()
     const handleLogin = async () =>{
+      console.log("email:",email)
+      console.log("password:",password)
+      if (email.length==0 || password.length==0){
+        setErr("Please Enter Valid Credentials")
+      }else{
+        setErr(undefined)
+      }
       try{
-        await emailSigninMutation({
-          email,
-          password,
-          userName:''
-        })
+        if (err==undefined && email.length>0 && password.length>0){
+          await emailSigninMutation({
+            email,
+            password,
+            userName:''
+          })
+        }
       }catch(e){
         console.log("error on login:",e)
       }
@@ -75,6 +85,7 @@ const Login = () => {
                   <div style={{ color: 'red', textAlign:'center' }}>{emailSigninError.response?.data.message || emailSigninError.message}</div>
                 </EuiFormRow>
               )}
+          {err && <p style={{color:'red'}}>{err}</p>}
           <EuiFlexItem grow={false} style={{ width: '100%' }}>
             <EuiForm component="form">
             <EuiFormRow label="Email">
@@ -82,7 +93,10 @@ const Login = () => {
                   name="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value.toLowerCase());
+                    setErr(undefined)
+                  }}
                 />
               </EuiFormRow>
               <EuiFormRow label="Password">
@@ -90,7 +104,9 @@ const Login = () => {
                   name="password"
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value); 
+                    setErr(undefined)}}
                 />
               </EuiFormRow>
               <EuiSpacer size="m" />

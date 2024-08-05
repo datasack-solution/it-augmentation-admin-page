@@ -10,11 +10,11 @@ import EditSkillSet from "./EditSkillSet";
 import { ClientRecord } from "@/util/util";
 
 export interface ClientTableProps {
-    admin?: Admin
+    currentUser?: Admin
 }
 
 const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
-    admin
+    currentUser
 }) => {
     const [searchValue, setSearchValue] = useState('');
     const [items, setItems] = useState<ClientRecord1[]>([]);
@@ -83,6 +83,8 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
             setEditingClient(null);
         }
     };
+
+    const isAdmin = currentUser?.role=='admin'
 
     const getExpandedRowContent = (client1: ClientRecord1) => {
         console.log("client record skill",client1)
@@ -243,7 +245,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
         },
 
         {
-            name: 'Actions',
+            name: isAdmin ? 'Actions':'Edit',
             actions: [
                 {
                     name: 'Edit',
@@ -254,6 +256,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                 },
                 {
                     name: 'Delete',
+                    available:()=>isAdmin,
                     description: 'Delete this client',
                     type: 'icon',
                     icon: 'trash',
@@ -394,6 +397,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                                 client={editingClient}
                                 onSave={handleSave}
                                 onCancel={handleCancel}
+                                isAdmin={isAdmin}
                             />
                         </EuiModalBody>
                     </EuiModal>

@@ -2,8 +2,7 @@ import Login from "@/components/Login"
 import { EuiFlexGroup, EuiFlexItem, EuiImage, EuiPageTemplate, EuiText, EuiTitle } from "@elastic/eui"
 
 const LoginPage = () => {
-    return <>
-        <EuiPageTemplate
+    return <EuiPageTemplate
             panelled={true}
             bottomBorder={true}
             grow={true}
@@ -50,7 +49,7 @@ const LoginPage = () => {
             </EuiPageTemplate.Section>
 
         </EuiPageTemplate>
-    </>
+
 }
 
 export default LoginPage

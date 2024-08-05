@@ -1,9 +1,6 @@
 import { ClientRecord, MainCategory, TechnologyItem } from "@/util/util";
 import axios from "axios";
 
-
-
-
 // for test clients - arrskillsets
 
 export interface SkillSet1 {

@@ -18,9 +18,10 @@ interface EditFormProps {
   client: ClientRecord;
   onSave: (data: ClientRecord) => void;
   onCancel: () => void;
+  isAdmin:boolean
 }
 
-const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel }) => {
+const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel,isAdmin }) => {
   const { handleSubmit, setValue, watch, getValues, control } = useForm<ClientRecord>({
     defaultValues: client,
   });
@@ -34,16 +35,16 @@ const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel }
   return (
     <EuiForm component="form" onSubmit={handleSubmit(onSubmit)}>
       <EuiFormRow label="Name">
-        <EuiFieldText value={data.name} onChange={e => setValue('name', e.target.value)} />
+        <EuiFieldText disabled={!isAdmin} value={data.name} onChange={e => setValue('name', e.target.value)} />
       </EuiFormRow>
       <EuiFormRow label="Industry">
-        <EuiFieldText value={data.industry} onChange={e => setValue('industry', e.target.value)} />
+        <EuiFieldText disabled={!isAdmin} value={data.industry} onChange={e => setValue('industry', e.target.value)} />
       </EuiFormRow>
-      <EuiFormRow label="Email">
-        <EuiFieldText value={data.email} onChange={e => setValue('email', e.target.value)} />
+      <EuiFormRow  label="Email">
+        <EuiFieldText disabled={!isAdmin} value={data.email} onChange={e => setValue('email', e.target.value)} />
       </EuiFormRow>
       <EuiFormRow label="Phone">
-        <EuiFieldText value={data.phone} onChange={e => setValue('phone', e.target.value)} />
+        <EuiFieldText disabled={!isAdmin} value={data.phone} onChange={e => setValue('phone', e.target.value)} />
       </EuiFormRow>
       <EuiFormRow label="Scheduled Date">
         <Controller

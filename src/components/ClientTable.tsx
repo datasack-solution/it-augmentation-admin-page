@@ -7,6 +7,9 @@ import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation }
 import { downloadCSV, downloadExcel } from "./export";
 import { Admin } from "@/utils/adminApi";
 
+
+// This client table is component is no longer needed, since we created a specific component that supports array of skillsets
+
 export interface ClientTableProps {
     admin?: Admin
 }
@@ -347,6 +350,7 @@ const ClientTable: FunctionComponent<ClientTableProps> = ({
                         <EuiModalBody>
                             {isUpdateClientMutationLoading && <EuiProgress size="xs" color="primary" />}
                             <EditForm
+                                isAdmin={false} //dummy value, since we are using arr skills client table.
                                 client={editingClient}
                                 onSave={handleSave}
                                 onCancel={handleCancel}

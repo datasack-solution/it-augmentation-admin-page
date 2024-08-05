@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from "axios";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useCookies } from "react-cookie";
 import { Admin,adminApi } from "./adminApi";
 import { useRouter } from "next/navigation";
@@ -109,6 +109,69 @@ export const useEmailSigninMutation = (validatePassword:boolean) => {
 };
 
 
+export const useEmailSignUpMutation = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter()
+
+  return useMutation(
+    (user: Admin) => adminApi.createAdmin(user),
+    {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries('userLogin');
+      },
+      onError: (e: AxiosError<AxiosErrorType>) => {
+        console.log("error on on create admin", e);
+      }
+    }
+  );
+};
+
+export const useUpdateUserMutation = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter()
+
+  return useMutation(
+    (user: Admin) => adminApi.updateAdmin(user),
+    {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries('userDetails');
+      },
+      onError: (e: AxiosError<AxiosErrorType>) => {
+        console.log("error on on update admin", e);
+      }
+    }
+  );
+};
+
+export const useDeleteAdminMutation = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter()
+
+  return useMutation(
+    (email:string ) => adminApi.deleteAdmin(email),
+    {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries('userDetails');
+      },
+      onError: (e: AxiosError<AxiosErrorType>) => {
+        console.log("error on on delete admin", e);
+      }
+    }
+  );
+};
+
+export const useGetUsers = (refetchInterval?: number) => {
+  return  useQuery({
+      queryKey: ['userDetails'],
+      queryFn: async () => {
+        const res =await adminApi.getAllUsers()
+        return res
+      },
+      onError:(e:AxiosError<AxiosErrorType>)=>e,
+      refetchInterval,
+    })
+}
+
 export const useResetPasswordMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter()
@@ -128,3 +191,4 @@ export const useResetPasswordMutation = () => {
     }
   );
 };
+

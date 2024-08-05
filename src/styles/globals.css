@@ -1,7 +1,13 @@
 .customModalCloseButton .euiModal__closeIcon {
     color: white;
-    background-color: #525151; 
+    background-color: black; 
   }
+
+  .euiModal__closeIcon {
+    color: white;
+    background-color: #909090
+  }
+
 
 .login-container {
   display: flex;

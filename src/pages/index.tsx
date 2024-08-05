@@ -1,4 +1,5 @@
 import ClientTableArrSkillSets from "@/components/ClientTableArrSkillSets"
+import UsersTable from "@/components/UserTable"
 import ForgetPasswordModal from "@/components/ForgetPasswordModal"
 import { useAuthUser } from "@/utils/adminHook"
 import { EuiBadge, EuiButton, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiImage, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
@@ -38,6 +39,7 @@ const AdminHomePage: FunctionComponent = () => {
         }
     }, [router, authAdmin]);
 
+    const currentUser = data?.data.user
 
     return (
         <Fragment>
@@ -55,7 +57,6 @@ const AdminHomePage: FunctionComponent = () => {
                 grow={true}
                 restrictWidth={false}
             >
-
                 <EuiPageTemplate.Header style={{ maxHeight: '150px', backgroundColor: 'black' }}>
                     <EuiFlexGroup
                         alignItems="center"
@@ -97,8 +98,10 @@ const AdminHomePage: FunctionComponent = () => {
                     <EuiFlexGroup>
                         <EuiFlexItem >
                             <div>
-                            <p style={{ fontWeight: 'bold' }}>Admin: <span style={{ color: 'green' }}>{data?.data.user.userName},</span></p>
-                            <ForgetPasswordModal user={data?.data.user}/>
+                            <p style={{ fontWeight: 'bold',fontSize:'12px'}}>Name: <span style={{ color: 'green', textTransform:'capitalize' }}>{currentUser?.userName},</span></p>
+                            <p style={{ fontWeight: 'bold', fontSize:'12px'}}>Role: <span style={{ color: 'green', textTransform:'capitalize'}}>{currentUser?.role}</span></p>
+                            <ForgetPasswordModal user={currentUser}/>
+                           {currentUser?.role=='admin' && <UsersTable currentUser={currentUser}/>}
                             </div>
                             <EuiSpacer size="l" />
                         </EuiFlexItem>
@@ -107,8 +110,10 @@ const AdminHomePage: FunctionComponent = () => {
                         </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
-                    <ClientTableArrSkillSets />
+                    <ClientTableArrSkillSets  currentUser={currentUser}/> 
                 </EuiPageTemplate.Section>
+
+
 
             </EuiPageTemplate>}
 
@@ -129,10 +134,6 @@ const AdminHomePage: FunctionComponent = () => {
                     </EuiModalFooter>
                 </EuiModal>
             </>}
-
-
-
-
         </Fragment>
     )
 }

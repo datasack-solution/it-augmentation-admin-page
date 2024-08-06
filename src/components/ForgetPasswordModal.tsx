@@ -38,6 +38,7 @@ const ForgetPasswordModal:FunctionComponent<ForgetPasswordModalProps> = ({
     }
 
     const resetPassword = async () =>{
+        setPasswordMismatchErr(undefined)
         if (newPassword.newPassword==newPassword.confirmNewPassword){
             await resetPasswordMutation({
                 email:user?.email || '',
@@ -94,7 +95,7 @@ const ForgetPasswordModal:FunctionComponent<ForgetPasswordModalProps> = ({
                     <EuiButton color="success" size="s" onClick={resetPassword} fill>
                         Change Password
                     </EuiButton>
-                    <EuiButton color="primary" size="s" onClick={() => { setOpenChangePassword(false);reset() }} fill>
+                    <EuiButton color="primary" size="s" onClick={() => { setOpenChangePassword(false);reset();setPasswordMismatchErr(undefined) }} fill>
                         Close
                     </EuiButton>
                 </EuiModalFooter>

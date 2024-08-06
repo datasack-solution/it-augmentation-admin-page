@@ -15,7 +15,6 @@ export const useGetClientRecords = (refetchInterval?: number) => {
         queryKey: ['clientRecords'],
         queryFn: async () => {
           const res =await clientApi.getClients()
-          console.log("client data:",res)
           return res
         },
         onError:(e:AxiosError<AxiosErrorType>)=>e,

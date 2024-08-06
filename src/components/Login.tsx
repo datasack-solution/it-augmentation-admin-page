@@ -17,19 +17,21 @@ import {
 import '@elastic/eui/dist/eui_theme_light.css';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { emailValidation } from './adminSchema';
 
 const Login = () => {
-  const { isLoading: isEmailSigninLoading, isError: isEmailSigninError, error: emailSigninError,isSuccess:isEmailSigninSuccess, mutateAsync: emailSigninMutation } = useEmailSigninMutation(false)
-  const { data, mutateAsync: authAdmin } = useAuthUser()
+  const {data:loginSuccessData, isLoading: isEmailSigninLoading, isError: isEmailSigninError, error: emailSigninError,isSuccess:isEmailSigninSuccess, mutateAsync: emailSigninMutation,reset } = useEmailSigninMutation(false)
+  const {  mutateAsync: authAdmin } = useAuthUser()
   const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [err,setErr]=useState<string|undefined>('')
     const router = useRouter()
     const handleLogin = async () =>{
-      console.log("email:",email)
-      console.log("password:",password)
       if (email.length==0 || password.length==0){
         setErr("Please Enter Valid Credentials")
+      }else if(emailValidation.validate(email)[0]?.failures()){
+        setErr(emailValidation.validate(email)[0]?.message)
+        return
       }else{
         setErr(undefined)
       }
@@ -80,6 +82,8 @@ const Login = () => {
           </EuiFlexItem>
           {isEmailSigninLoading && <EuiLoadingSpinner size='l' />}
           <EuiSpacer size="s" />
+          {isEmailSigninSuccess && 
+          <p style={{color:'green',textAlign:'center'}}>{loginSuccessData.data.message}</p>}
           {isEmailSigninError && (
                 <EuiFormRow>
                   <div style={{ color: 'red', textAlign:'center' }}>{emailSigninError.response?.data.message || emailSigninError.message}</div>
@@ -95,7 +99,8 @@ const Login = () => {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value.toLowerCase());
-                    setErr(undefined)
+                    setErr(undefined);
+                    reset()
                   }}
                 />
               </EuiFormRow>
@@ -106,7 +111,9 @@ const Login = () => {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value); 
-                    setErr(undefined)}}
+                    setErr(undefined);
+                    reset()
+                  }}
                 />
               </EuiFormRow>
               <EuiSpacer size="m" />

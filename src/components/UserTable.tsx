@@ -1,9 +1,9 @@
 import { Admin } from "@/utils/adminApi"
 import { useDeleteAdminMutation, useGetUsers } from "@/utils/adminHook"
-import { EuiBadge, EuiBasicTableColumn, EuiBeacon, EuiButton, EuiButtonEmpty, EuiButtonIcon, EuiFlexGroup, EuiHealth, EuiInMemoryTable, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiProgress, EuiSpacer } from "@elastic/eui"
+import { EuiBadge, EuiBasicTableColumn, EuiButton, EuiButtonEmpty, EuiButtonIcon, EuiFlexGroup, EuiHealth, EuiInMemoryTable, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiProgress, EuiSpacer } from "@elastic/eui"
+import { useRouter } from "next/navigation"
 import { Fragment, FunctionComponent, useState } from "react"
 import UserManagement from "./UserManagment"
-import { useRouter } from "next/navigation"
 
 export interface UsersTableProps{
     currentUser:Admin|undefined
@@ -12,7 +12,7 @@ const UsersTable:FunctionComponent<UsersTableProps> = ({
     currentUser
 }) => {
     const [isModalOpen, setModalOpen] = useState(false)
-    const { data: userData, isLoading: getUsersLoading, error: getUsersError } = useGetUsers(2)
+    const { data: userData, isLoading: getUsersLoading, error: getUsersError } = useGetUsers(2000) //in milliseconds
     const [editUser, setEditUser] = useState<{ user: Admin | undefined, isOpen: boolean, isEdit: boolean }>({
         user: undefined,
         isOpen: false,

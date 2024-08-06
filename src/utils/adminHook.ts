@@ -99,7 +99,7 @@ export const useEmailSigninMutation = (validatePassword:boolean) => {
         }
         setTimeout(() => {
           router.push('/')
-        }, 500)
+        }, 1000)
       },
       onError: (e: AxiosError<AxiosErrorType>) => {
         console.log("error on onLogin", e);

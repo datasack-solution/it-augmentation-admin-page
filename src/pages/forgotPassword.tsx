@@ -1,3 +1,4 @@
+import { emailValidation } from '@/components/adminSchema';
 import { useResetPasswordMutation, useSendOTPMutation, useVerifyOTPMutation } from '@/utils/adminHook';
 import {
     EuiButton,
@@ -10,10 +11,9 @@ import {
     EuiLoadingSpinner,
     EuiPageTemplate,
     EuiPanel,
-    EuiProgress,
     EuiSpacer,
     EuiText,
-    EuiTitle,
+    EuiTitle
 } from '@elastic/eui';
 import { isAxiosError } from 'axios';
 import { Fragment, useState } from 'react';
@@ -24,21 +24,29 @@ const ForgotPassword = () => {
     const [userOtp, setUserOtp] = useState('')
     const [enablePasswordUpdate, setPasswordUpdate] = useState(false)
     const [userPassword, setUserPassword] = useState('')
-    const { data: otpData, isError: isSendOtpError, error: sendOtpError, isLoading: sendOtpLoading, mutateAsync: sendOTP } = useSendOTPMutation()
-    const { data: verifyOtpData, isLoading: verfiyOtpLoading,isError:isVerifyOtpError, error:verifyOtpError, mutateAsync: verifyOtp } = useVerifyOTPMutation()
-    const { data: resetPasswordData, isLoading: resetPasswordLoading, mutateAsync: resetPassword } = useResetPasswordMutation()
+    const { data: otpData, isError: isSendOtpError, error: sendOtpError, isLoading: sendOtpLoading, mutateAsync: sendOTP,reset } = useSendOTPMutation()
+    const { data: verifyOtpData, isLoading: verfiyOtpLoading, isError: isVerifyOtpError, error: verifyOtpError, mutateAsync: verifyOtp } = useVerifyOTPMutation()
+    const { isLoading: resetPasswordLoading, mutateAsync: resetPassword } = useResetPasswordMutation()
+    const [validationErr, setValidationErr] = useState<string | undefined>(undefined)
 
     const handleForgotPassword = async () => {
         setOtpMenu(false)
         setPasswordUpdate(false)
+        setValidationErr(undefined)
         try {
-            const response = await sendOTP({
-                accountVerification: true,
-                email
-            })
-            setOtpMenu(true)
-            if (response.data.success) {
+            if (emailValidation.validate(email)[0]?.failures()) {
+                setValidationErr(emailValidation.validate(email)[0]?.message)
+                return
+            }
+            if (validationErr==undefined) {
+                const response = await sendOTP({
+                    accountVerification: true,
+                    email
+                })
                 setOtpMenu(true)
+                if (response.data.success) {
+                    setOtpMenu(true)
+                }
             }
         } catch (err: any) {
             if (isAxiosError(err)) {
@@ -127,7 +135,8 @@ const ForgotPassword = () => {
                                         <h2>Forgot Password</h2>
                                     </EuiTitle>
                                 </EuiFlexItem>
-                                {sendOtpLoading && <EuiLoadingSpinner size='l'/>}
+                                {sendOtpLoading && <EuiLoadingSpinner size='l' />}
+                                {validationErr && <p style={{color:'red',textAlign:'center'}}>{validationErr}</p>}
                                 {otpData?.data.success && (
                                     <EuiFormRow>
                                         <div style={{ color: 'green', textAlign: 'center' }}>{otpData.data.message}</div>
@@ -146,7 +155,7 @@ const ForgotPassword = () => {
                                                 name="email"
                                                 placeholder="Enter your email"
                                                 value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
+                                                onChange={(e) => {setEmail(e.target.value);setValidationErr(undefined);reset()}}
                                             />
                                         </EuiFormRow>
                                         <EuiSpacer size="m" />
@@ -170,7 +179,7 @@ const ForgotPassword = () => {
                     {otpMenu && !enablePasswordUpdate &&
                         <div className="login-container">
                             <EuiPanel className="login-panel">
-                                {verfiyOtpLoading &&  <EuiLoadingSpinner size='l'/>}
+                                {verfiyOtpLoading && <EuiLoadingSpinner size='l' />}
                                 {verifyOtpData?.data.success && (
                                     <EuiFormRow>
                                         <div style={{ color: 'green', textAlign: 'center' }}>{verifyOtpData.data.message}</div>
@@ -185,10 +194,10 @@ const ForgotPassword = () => {
                                     <EuiFieldText onChange={e => setUserOtp(e.target.value)} />
                                 </EuiFormRow>
                                 <EuiFormRow>
-                                <EuiFlexGroup>
-                                    <EuiButton color='success' onClick={onVerifyOtp}>Verify OTP</EuiButton>
-                                    <EuiButton color='accent' onClick={handleForgotPassword}>Resend OTP</EuiButton>
-                                </EuiFlexGroup>
+                                    <EuiFlexGroup>
+                                        <EuiButton color='success' onClick={onVerifyOtp}>Verify OTP</EuiButton>
+                                        <EuiButton color='accent' onClick={handleForgotPassword}>Resend OTP</EuiButton>
+                                    </EuiFlexGroup>
                                 </EuiFormRow>
                             </EuiPanel>
                         </div>}
@@ -196,7 +205,7 @@ const ForgotPassword = () => {
                     {enablePasswordUpdate && !otpMenu &&
                         <div className="login-container">
                             <EuiPanel className="login-panel">
-                                {resetPasswordLoading &&  <EuiLoadingSpinner size='l'/>}
+                                {resetPasswordLoading && <EuiLoadingSpinner size='l' />}
                                 <EuiFormRow label={"Enter New Password:"}>
                                     <EuiFieldText onChange={e => setUserPassword(e.target.value)} />
                                 </EuiFormRow>

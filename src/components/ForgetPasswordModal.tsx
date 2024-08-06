@@ -57,7 +57,7 @@ const ForgetPasswordModal:FunctionComponent<ForgetPasswordModalProps> = ({
     return <Fragment>
         <EuiButtonEmpty onClick={() => { setOpenChangePassword(true) }} style={{ marginLeft: '-10px',marginRight:'10px' }} iconType="pencil" iconSize="s" size="s">change password</EuiButtonEmpty>
         {openChangePassword && <EuiPageTemplate.Section>
-            <EuiModal aria-labelledby={"Error"} style={{ width: 800 }} onClose={() => { setOpenChangePassword(false); reset() }}>
+            <EuiModal aria-labelledby={"Error"} style={{ width: 800 }} onClose={() => { setOpenChangePassword(false); reset();setPasswordMismatchErr(undefined) }}>
                     {isValidatePasswordLoading || isResetPasswordLoading && <EuiProgress size="s" color="green" />}
                 <EuiModalHeader>
                     <EuiModalHeaderTitle >Change <span style={{color:'orange'}}>Password</span></EuiModalHeaderTitle>

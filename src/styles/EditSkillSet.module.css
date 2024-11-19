@@ -1,0 +1,60 @@
+.pricingContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: auto;
+    /* width: 50vw; */
+    padding: 10px;
+  }
+  
+  
+
+
+   .category {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  
+  .categoryHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 5px;
+    transition: background-color 0.3s ease;
+
+  }
+  
+  .categoryHeader.active {
+    background-color: #f5f5f5;
+  }
+  
+
+  .techList {
+    margin-top: 8px;
+    padding-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+
+  
+  .techItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .quantityControls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .quantityDisplay {
+    min-width: 24px;
+    text-align: center;
+  }
+  

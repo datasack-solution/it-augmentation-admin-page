@@ -5,7 +5,7 @@ import EditForm from "./ClientForm";
 import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation } from "./hook";
 import { downloadCSV, downloadExcel } from "./exportArrSkillSets";
 import { Admin } from "@/utils/adminApi";
-import { ClientRecord1 } from "./clientApi";
+// import { ClientRecord } from "./clientApi";
 import EditSkillSet from "./EditSkillSet";
 import { ClientRecord } from "@/util/util";
 
@@ -17,13 +17,13 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
     currentUser
 }) => {
     const [searchValue, setSearchValue] = useState('');
-    const [items, setItems] = useState<ClientRecord1[]>([]);
+    const [items, setItems] = useState<ClientRecord[]>([]);
     const [sortField, setSortField] = useState<string | undefined>(undefined);
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | undefined>(undefined);
-    const [editingClient, setEditingClient] = useState<ClientRecord1 | null>(null);
+    const [editingClient, setEditingClient] = useState<ClientRecord | null>(null);
     const [isClient, setIsClient] = useState(false)
     const [expandedRowIds, setExpandedRowIds] = useState<string[]>([]);
-    const [isDeleteOpen, setDeleteOpen] = useState<{ client: ClientRecord1 | undefined, isOpen: boolean }>({
+    const [isDeleteOpen, setDeleteOpen] = useState<{ client: ClientRecord | undefined, isOpen: boolean }>({
         client: undefined,
         isOpen: false
     })
@@ -40,12 +40,12 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
         }
     }, [clientRecords])
 
-    const handleEdit = (client: ClientRecord1) => {
+    const handleEdit = (client: ClientRecord) => {
         console.log("client: ", client)
         setEditingClient(client);
     };
 
-    const handleSave = async (updatedClient: ClientRecord1) => {
+    const handleSave = async (updatedClient: ClientRecord) => {
         await UpdateClientMutation(updatedClient)
         setEditingClient(null);
     };
@@ -58,7 +58,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
         })
     };
 
-    const handleDelete = async (client: ClientRecord1) => {
+    const handleDelete = async (client: ClientRecord) => {
         setDeleteOpen({
             client,
             isOpen: true,
@@ -66,7 +66,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
     };
 
 
-    const toggleDetails = (client: ClientRecord1) => {
+    const toggleDetails = (client: ClientRecord) => {
         const isExpanded = expandedRowIds.includes(client.email);
         const newExpandedRowIds = isExpanded
             ? expandedRowIds.filter(id => id !== client.email)
@@ -75,7 +75,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
     };
 
 
-    const removeSkillSetFromArray = async (client: ClientRecord1, skillSetReqId: string) => {
+    const removeSkillSetFromArray = async (client: ClientRecord, skillSetReqId: string) => {
         if (client.arrSkillsets) {
             const arrSkillsets = client.arrSkillsets.filter(skill => skill._id != skillSetReqId)
             const updatedClient = { ...client, arrSkillsets }
@@ -86,7 +86,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
 
     const isAdmin = currentUser?.role=='admin'
 
-    const getExpandedRowContent = (client1: ClientRecord1) => {
+    const getExpandedRowContent = (client1: ClientRecord) => {
         console.log("client record skill",client1)
         return (
             <EuiFlexGroup>
@@ -94,46 +94,49 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                     <div>
                         {client1.arrSkillsets !== undefined && client1.arrSkillsets.length != 0 && client1.arrSkillsets.map((client, skillIdx) => {
                             return <div key={skillIdx} style={{ fontSize: '13px' }}>
-                                {client?.predefinedTechData && client.predefinedTechData.length > 0 && <Fragment>
+                                {client?.skillset && client.skillset.length > 0 && <Fragment>
                                     <strong><span style={{ color: 'darkorange' }}> Request: {skillIdx + 1}</span></strong>
                                     <EuiFlexGroup alignItems="center">
-                                        <strong style={{ color: 'green' }}>Predefined Skillsets:</strong>
+                                        <strong style={{ color: 'green' }}>Skillsets:</strong>
                                         <div style={{ display: 'flex' }}>
                                             <EuiIcon type={'pencil'} cursor='pointer' aria-label="editSkillset" onClick={() => {
                                                 setEditSkillModalOpen({
                                                     isOpen: true,
                                                     updatableClient: client1,
-                                                    skillSetId: client._id
+                                                    skillSetId: client._id || ''
                                                 })
                                             }} color="green" size="m" />
                                             <div style={{ width: '10px' }}></div>
                                             <EuiIcon type={'trash'} color="red" cursor='pointer' aria-label="deleteSkillset" onClick={() => {
-                                                removeSkillSetFromArray(client1, client._id)
+                                                removeSkillSetFromArray(client1, client._id || '')
                                             }} size="m" />
                                         </div>
                                     </EuiFlexGroup>
-                                    {client?.predefinedTechData.map((category, index) => (
+                                    {client?.skillset.map((category, index) => (
                                         <div key={index} >
-                                            <strong style={{ color: 'darkred' }}>-- {category.mainCategory} --</strong>
-                                            {category.subcategories.map((subcategory, subIndex) => (
-                                                <div key={subIndex} >
-                                                    <EuiFlexGroup >
-                                                        <EuiFlexItem grow={false}>
-                                                            <strong>{subIndex + 1}.{subcategory.subcategory}:&nbsp;</strong>
-                                                        </EuiFlexItem>
-                                                        {subcategory.items.map((item, itemIndex) => (
-                                                            <EuiFlexItem key={itemIndex} grow={false}>
-                                                                <p> {item.techName} ({item.quantity})</p>
-                                                            </EuiFlexItem>
-                                                        ))}
-                                                    </EuiFlexGroup>
-                                                </div>
+                                            <strong style={{ color: 'darkred' }}>-- {category.category} --</strong>
+                                            {category.technologies.map((tech, subIndex) => (
+                                                // <div key={subIndex} >
+                                                //     <EuiFlexGroup >
+                                                //         <EuiFlexItem grow={false}>
+                                                //             <strong>{subIndex + 1}.{subcategory.subcategory}:&nbsp;</strong>
+                                                //         </EuiFlexItem>
+                                                //         {subcategory.items.map((item, itemIndex) => (
+                                                //             <EuiFlexItem key={itemIndex} grow={false}>
+                                                //                 <p> {item.techName} ({item.quantity})</p>
+                                                //             </EuiFlexItem>
+                                                //         ))}
+                                                //     </EuiFlexGroup>
+                                                // </div>
+                                                <EuiFlexItem key={subIndex} grow={false}>
+                                                <p> {tech.tech} ({tech.quantity})</p>
+                                            </EuiFlexItem>
                                             ))}
                                         </div>
                                     ))}
                                 </Fragment>
                                 }
-                                {(client?.customTechsData != null && client?.customTechsData.length != 0) &&
+                                {/* {(client?.customTechsData != null && client?.customTechsData.length != 0) &&
                                     <div>
                                         <strong style={{ color: 'green' }}>Custom Skillsets: &nbsp;</strong>
                                         <EuiFlexGroup wrap={true} responsive={true}>
@@ -144,14 +147,14 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                                             ))}
                                         </EuiFlexGroup>
                                     </div>
-                                }
+                                } */}
                                 <EuiSpacer size="s" />
                             </div>
 
                         })}
                     </div>
 
-                    {client1.arrSkillsets == undefined || client1.arrSkillsets.length == 0 || (client1.arrSkillsets.length==1 && client1.arrSkillsets[0].predefinedTechData.length==0 && client1.arrSkillsets[0].customTechsData?.length==0 ) && <div>
+                    {client1.arrSkillsets == undefined || client1.arrSkillsets.length == 0 || (client1.arrSkillsets.length==1 && client1.arrSkillsets[0].skillset.length==0  ) && <div>
                         Sorry, client did not choose any technologies.
                     </div>}
                 </EuiFlexItem>
@@ -159,7 +162,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                 <EuiFlexItem>
                     <div style={{ fontSize: '13px' }}>
                         <strong style={{ color: 'green' }}>Client Requirements:</strong>
-                        <div><p>{client1.requirements}</p></div>
+                        <div><p>{client1.reason}</p></div>
                     </div>
                 </EuiFlexItem>
             </EuiFlexGroup>
@@ -167,7 +170,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
     };
 
 
-    const columns: Array<EuiBasicTableColumn<ClientRecord1>> = [
+    const columns: Array<EuiBasicTableColumn<ClientRecord>> = [
         {
             field: 'name',
             name: 'Name',
@@ -196,8 +199,8 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
         },
         {
             name: 'Schedule',
-            sortable: (client: ClientRecord1) => new Date(client.date).getTime(),
-            render: (client: ClientRecord1) => {
+            sortable: (client: ClientRecord) => new Date(client.date).getTime(),
+            render: (client: ClientRecord) => {
                 const date = new Date(client.date);
                 const formattedDate = date.toLocaleString('en-US', {
                     year: 'numeric',
@@ -252,7 +255,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                     description: 'Edit this client',
                     type: 'icon',
                     icon: 'pencil',
-                    onClick: (client: ClientRecord1) => handleEdit(client),
+                    onClick: (client: ClientRecord) => handleEdit(client),
                 },
                 {
                     name: 'Delete',
@@ -261,7 +264,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                     type: 'icon',
                     icon: 'trash',
                     color: 'danger',
-                    onClick: (client: ClientRecord1) => handleDelete(client),
+                    onClick: (client: ClientRecord) => handleDelete(client),
                 },
             ],
         },
@@ -269,7 +272,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
             isExpander: true,
             name: "SkillSets",
             mobileOptions: { header: false, align: 'right', truncateText: true, enlarge: false, textOnly: true },
-            render: (client: ClientRecord1) => (
+            render: (client: ClientRecord) => (
                 <EuiButtonIcon
                     onClick={() => toggleDetails(client)}
                     aria-label={
@@ -295,8 +298,8 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
 
     const sortedItems = filteredItems.sort((a, b) => {
         if (sortField) {
-            const aValue = a[sortField as keyof ClientRecord1];
-            const bValue = b[sortField as keyof ClientRecord1];
+            const aValue = a[sortField as keyof ClientRecord];
+            const bValue = b[sortField as keyof ClientRecord];
 
             if (aValue === undefined && bValue === undefined) return 0;
             if (aValue === undefined) return 1;
@@ -312,7 +315,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
     });
 
 
-    const onSort = (criteria: { sort?: { field: keyof ClientRecord1, direction: 'asc' | 'desc' } }) => {
+    const onSort = (criteria: { sort?: { field: keyof ClientRecord, direction: 'asc' | 'desc' } }) => {
         if (!!criteria.sort) {
             const { field, direction } = criteria.sort;
             setSortField(field);
@@ -353,7 +356,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                     columns={columns}
                     itemId="email"
                     itemIdToExpandedRowMap={expandedRowIds.reduce((acc, id) => {
-                        acc[id] = getExpandedRowContent(items.find(client => client.email === id) as ClientRecord1);
+                        acc[id] = getExpandedRowContent(items.find(client => client.email === id) as ClientRecord);
                         return acc;
                     }, {} as Record<string, JSX.Element>)}
                     onChange={onSort}
@@ -366,7 +369,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                     }}
                     sorting={{
                         sort: {
-                            field: sortField as keyof ClientRecord1 || 'name',
+                            field: sortField as keyof ClientRecord || 'name',
                             direction: sortDirection || 'asc',
                         },
                     }}

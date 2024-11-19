@@ -22,7 +22,7 @@ interface EditFormProps {
 }
 
 const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel,isAdmin }) => {
-  const { handleSubmit, setValue, watch, getValues, control } = useForm<ClientRecord>({
+  const { handleSubmit, setValue, watch, control } = useForm<ClientRecord>({
     defaultValues: client,
   });
 
@@ -68,7 +68,7 @@ const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel,i
       </EuiFormRow>
 
       <EuiFormRow label="Requirements">
-        <EuiTextArea value={data.requirements} onChange={e => setValue('requirements', e.target.value)} />
+        <EuiTextArea value={data.reason} onChange={e => setValue('reason', e.target.value)} />
       </EuiFormRow>
       <EuiFormRow label="Wants to sign NDA">
         <EuiSwitch checked={data.nda} onChange={e => setValue('nda', e.target.checked)} label="NDA" />

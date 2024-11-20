@@ -30,7 +30,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
     const { data: clientRecords, isLoading: isClientRecordsLoading } = useGetClientRecords(2000)
     const { isLoading: isUpdateClientMutationLoading, error: UpdateClientMutationError, mutateAsync: UpdateClientMutation } = useUpdateClientMutation()
     const { isLoading: isDeleteClientMutationLoading, error: DeleteClientMutationError, mutateAsync: DeleteClientMutation } = useDeleteClientMutation()
-    const [editSkillModalOpen, setEditSkillModalOpen] = useState<{ isOpen: boolean, updatableClient: ClientRecord | undefined, skillSetId: string }>({ isOpen: false, updatableClient: undefined, skillSetId: '' })
+    const [editSkillModalOpen, setEditSkillModalOpen] = useState<{ isOpen: boolean, updatableClient: ClientRecord | undefined, skillSetId: string,isAdd:boolean }>({ isOpen: false, updatableClient: undefined, skillSetId: '', isAdd:false })
 
     useEffect(() => {
         setIsClient(true)
@@ -103,7 +103,8 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                                                 setEditSkillModalOpen({
                                                     isOpen: true,
                                                     updatableClient: client1,
-                                                    skillSetId: client._id || ''
+                                                    skillSetId: client._id || '',
+                                                    isAdd:false
                                                 })
                                             }} color="green" size="m" />
                                             <div style={{ width: '10px' }}></div>
@@ -154,8 +155,16 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                         })}
                     </div>
 
-                    {client1.arrSkillsets == undefined || client1.arrSkillsets.length == 0 || (client1.arrSkillsets.length==1 && client1.arrSkillsets[0].skillset.length==0  ) && <div>
+                    {client1.arrSkillsets == undefined || client1.arrSkillsets.length == 0 || (client1.arrSkillsets.length==1 && client1.arrSkillsets[0].skillset.length==0  ) && <div style={{display:'flex',gap:5}}>
                         Sorry, client did not choose any technologies.
+                        <EuiButton size="s" onClick={() => {
+                                                setEditSkillModalOpen({
+                                                    isOpen: true,
+                                                    updatableClient: client1,
+                                                    skillSetId: 'newItem',
+                                                    isAdd:true
+                                                })
+                                            }} >Add</EuiButton>
                     </div>}
                 </EuiFlexItem>
 
@@ -375,10 +384,11 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                     }}
                     align="center"
                 />
-                {!!editSkillModalOpen.updatableClient && <EditSkillSet isOpen={editSkillModalOpen.isOpen} handleCancel={(isOpen) => setEditSkillModalOpen({
+                {!!editSkillModalOpen.updatableClient && <EditSkillSet isOpen={editSkillModalOpen.isOpen} isAdd={editSkillModalOpen.isAdd} handleCancel={(isOpen) => setEditSkillModalOpen({
                     isOpen,
                     skillSetId: '',
-                    updatableClient: undefined
+                    updatableClient: undefined,
+                    isAdd:false
                 })} skillSetId={editSkillModalOpen.skillSetId} updatbaleClient={editSkillModalOpen.updatableClient} />}
 
 

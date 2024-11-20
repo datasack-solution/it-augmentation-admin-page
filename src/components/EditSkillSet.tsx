@@ -1,9 +1,9 @@
-import {  SkillSet, TransformedSkillsets, TechnologyItem, ClientRecord } from "@/util/util";
+import { SkillSet, TransformedSkillsets, TechnologyItem, ClientRecord, ClientRecordForAdd } from "@/util/util";
 import { EuiBadge, EuiBeacon, EuiButton, EuiButtonIcon, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiProgress, EuiText } from "@elastic/eui";
 import { Fragment, FunctionComponent, useEffect, useState } from "react";
 import styles from '../styles/Skillset.module.css';
 import EditCustomSkillSet, { CustomTech } from "./EditCustomSkillSet";
-import { useUpdateClientMutation } from "./hook";
+import { useAddClientMutation, useUpdateClientMutation } from "./hook";
 import EditSkillSetForm from "./EditTechForm";
 
 // type Technologies = {
@@ -13,7 +13,7 @@ import EditSkillSetForm from "./EditTechForm";
 // };
 
 
- type Technologies = {
+type Technologies = {
     "Core Banking": string[];
     SAP: string[];
     "Integration / Middleware": string[];
@@ -27,7 +27,7 @@ import EditSkillSetForm from "./EditTechForm";
     "Specialized Tools/Applications": string[]
 };
 
- const technologies: Technologies = {
+const technologies: Technologies = {
     "Core Banking": [
         "T24 Temenos Consultant",
         "T24 Techno Functional",
@@ -137,13 +137,13 @@ const segregateTechnologies = (skillSet: SkillSet): SegregrateTechnologies => {
 
     skillSet.skillset.forEach(category => {
         category.technologies.forEach(item => {
-          
-                if (technologyMap[item.tech]) {
-                    technologyMap[item.tech] += item.quantity;
-                } else {
-                    technologyMap[item.tech] = item.quantity;
-                }
-         
+
+            if (technologyMap[item.tech]) {
+                technologyMap[item.tech] += item.quantity;
+            } else {
+                technologyMap[item.tech] = item.quantity;
+            }
+
         });
     });
 
@@ -215,21 +215,24 @@ export interface EditSkillSetProps {
     isOpen: boolean
     handleCancel: (isOpen: boolean) => void
     updatbaleClient: ClientRecord,
-    skillSetId: string
+    skillSetId: string,
+    isAdd: boolean
 }
 
 const EditSkillSet: FunctionComponent<EditSkillSetProps> = ({
     isOpen,
     handleCancel,
     skillSetId,
-    updatbaleClient
+    updatbaleClient,
+    isAdd
 }) => {
     const [selectedTechnologies, setSelectedTechnologies] = useState<{ [key: string]: number }>({});
     const [customTechs, setCustomTechs] = useState<CustomTech[]>([])
     const [openCategory, setOpenCategory] = useState<string | null>(null);
     const [openSubCategory, setOpenSubCategory] = useState<string | null>(null);
-    const [updatableSkillSet,setUpdatableSkillSet]=useState<SkillSet|undefined>(undefined)
+    const [updatableSkillSet, setUpdatableSkillSet] = useState<SkillSet | undefined>(undefined)
     const { isLoading: isUpdateClientMutationLoading, error: updateClientMutationError, mutateAsync: updateClientMutation } = useUpdateClientMutation()
+    const { isLoading: isaddClientMutationLoading, error: addClientMutationError, mutateAsync: addClientMutation } = useAddClientMutation()
 
 
 
@@ -261,11 +264,11 @@ const EditSkillSet: FunctionComponent<EditSkillSetProps> = ({
 
     useEffect(() => {
         if (!updatbaleClient?.arrSkillsets) return;
-    
+
         const updatableSkillSet = updatbaleClient.arrSkillsets.find(skill => skill._id === skillSetId) || {
-           skillset:[]
+            skillset: []
         };
-    
+
         // const techs = segregateTechnologies(updatableSkillSet);
         // setSelectedTechnologies(techs.skillsets);
         // setCustomTechs(techs.customTechs);
@@ -287,7 +290,7 @@ const EditSkillSet: FunctionComponent<EditSkillSetProps> = ({
     //     }
     //     return false;
     // };
-    
+
 
     // const isItemSelectedUnderSubCategory = (selectedMainCategory: string, selectedSubCategory: string): boolean => {
     //     for (const [mainCategory, subCategories] of Object.entries(technologies)) {
@@ -315,68 +318,72 @@ const EditSkillSet: FunctionComponent<EditSkillSetProps> = ({
         const segTechs: SegregrateTechnologies = {
             skillsets: selectedTechnologies,
         }
-    //    const {predefinedTechData,customTechsData}= combineToSkillSet(segTechs)
-       if (!!updatableSkillSet){
-        const updatedSkillSet = {...updatableSkillSet,segTechs}
-        const updatedArrSkillSets = updatbaleClient.arrSkillsets?.map(skill=>{
-            if (skill._id==updatableSkillSet._id){
-                return updatedSkillSet
-            }
-            return skill
-        })
+        //    const {predefinedTechData,customTechsData}= combineToSkillSet(segTechs)
+        if (!!updatableSkillSet) {
+            const updatedSkillSet = { ...updatableSkillSet, segTechs }
+            const updatedArrSkillSets = updatbaleClient.arrSkillsets?.map(skill => {
+                if (skill._id == updatableSkillSet._id) {
+                    return updatedSkillSet
+                }
+                return skill
+            })
 
-        const updatedClient = updatbaleClient
-        updatedClient.arrSkillsets=updatedArrSkillSets
-        try{
-            await updateClientMutation(updatedClient)
-            handleCancel(false)
-        }catch(e){
-            console.log("error on updating client")
+            const updatedClient = updatbaleClient
+            updatedClient.arrSkillsets = updatedArrSkillSets
+            try {
+                await updateClientMutation(updatedClient)
+                handleCancel(false)
+            } catch (e) {
+                console.log("error on updating client")
+            }
         }
     }
-    }
 
-    const onUpdateNew = async (updatedSkills:TransformedSkillsets[]) => {
-        console.log("incoming updated skills:",updatedSkills)
-        if (updatableSkillSet){
-            const updatedArrSkillSets = updatbaleClient.arrSkillsets?.map(skill=>{
-                if (skill._id==skillSetId){
+    const onUpdateNew = async (updatedSkills: TransformedSkillsets[]) => {
+        console.log("incoming updated skills:", updatedSkills)
+        if (updatableSkillSet) {
+            const updatedArrSkillSets = updatbaleClient.arrSkillsets?.map(skill => {
+                if (skill._id == skillSetId) {
                     return {
-                        _id:skillSetId,
-                        skillset:updatedSkills
+                        _id: skillSetId,
+                        skillset: updatedSkills
                     }
                 }
                 return skill
             })
             const updatedClient = updatbaleClient
-            const newUpdatedClient = {...updatedClient, arrSkillsets:updatedArrSkillSets}
 
-            try{
-                // console.log("arr skills:",updatedArrSkillSets)
-                await updateClientMutation(newUpdatedClient)
+            try {
+                if (!isAdd) {
+                    const newUpdatedClient = { ...updatedClient, arrSkillsets: updatedArrSkillSets }
+                    await updateClientMutation(newUpdatedClient)
+                } else {
+                    const addPayload: ClientRecordForAdd = { ...updatbaleClient, skillsets: updatedSkills }
+                    await addClientMutation(addPayload)
+                }
                 handleCancel(false)
-            }catch(e){
+            } catch (e) {
                 console.log("error on updating client")
             }
         }
     }
 
     return <Fragment>
-        {isOpen && !!updatableSkillSet &&<EuiModal
+        {isOpen && !!updatableSkillSet && <EuiModal
             aria-labelledby={"Delete Client Record"}
             onClose={handleClose}
             color="danger"
             initialFocus="[name=popswitch]">
-                {isUpdateClientMutationLoading && <EuiProgress />}
-                {!!updateClientMutationError && <p style={{color:'red'}}>{updateClientMutationError.response?.data.message || updateClientMutationError.message}</p>}
+            {isUpdateClientMutationLoading && <EuiProgress />}
+            {!!updateClientMutationError && <p style={{ color: 'red' }}>{updateClientMutationError.response?.data.message || updateClientMutationError.message}</p>}
             <EuiModalHeader>
-                <EuiText size="m" style={{fontWeight:'bold'}}>Edit <span style={{color:'orange'}}>SkillSet</span></EuiText>
+                <EuiText size="m" style={{ fontWeight: 'bold' }}>Edit <span style={{ color: 'orange' }}>SkillSet</span></EuiText>
             </EuiModalHeader>
 
-            <EditSkillSetForm skillSet={updatableSkillSet.skillset} onUpdate={(updatedSkills)=>{onUpdateNew(updatedSkills)}}/>
+            <EditSkillSetForm skillSet={updatableSkillSet.skillset} onUpdate={(updatedSkills) => { onUpdateNew(updatedSkills) }} />
 
             {/* <EuiModalBody> */}
-                {/* <div className={styles.pricingContainer}>
+            {/* <div className={styles.pricingContainer}>
                     {Object.entries(technologies).map(([mainCategory, subCategories], idx) => (
                         <div key={idx} className={styles.mainCategory}>
                             <div
@@ -444,7 +451,7 @@ const EditSkillSet: FunctionComponent<EditSkillSetProps> = ({
                         </div>
                     ))}
                 </div> */}
-                {/* <EditCustomSkillSet customTechsOnReset={customTechs} onSelect={onSelectCustomTechs} /> */}
+            {/* <EditCustomSkillSet customTechsOnReset={customTechs} onSelect={onSelectCustomTechs} /> */}
             {/* </EuiModalBody> */}
             {/* <EuiModalFooter>
                 <EuiButton onClick={onUpdate} size="s" color="success">Update</EuiButton>

@@ -60,12 +60,34 @@ export interface ClientModel {
   duration?: string;
 }
 
+export interface ClientModelForAdd {
+  industry: string;
+  name: string;
+  email: string;
+  phone: string;
+  date: string;
+  time: string;
+  reason?: string;
+  nda: boolean;
+  skillsets?: TransformedSkillsets[];
+  duration?: string;
+}
+
+
 export interface ClientRecord extends ClientModel{
     city?:string,
     contactedChannel?:'Call'|'WhatsApp'|'VoiceMail'|'Email',
     responded?:boolean,
     isInterested?:boolean,
     remarks?:string
+}
+
+export interface ClientRecordForAdd extends ClientModelForAdd{
+  city?:string,
+  contactedChannel?:'Call'|'WhatsApp'|'VoiceMail'|'Email',
+  responded?:boolean,
+  isInterested?:boolean,
+  remarks?:string
 }
 
 export const clientRecords: ClientRecord[] = [

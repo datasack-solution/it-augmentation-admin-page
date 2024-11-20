@@ -1,4 +1,4 @@
-import { ClientRecord } from "@/util/util";
+import { ClientRecord, ClientRecordForAdd } from "@/util/util";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { clientApi } from "./clientApi";
 import { AxiosError } from "axios";
@@ -40,6 +40,25 @@ export const useGetClientRecords = (refetchInterval?: number) => {
       }
     );
   };
+
+
+  export const useAddClientMutation = () => {
+    const queryClient = useQueryClient();
+  
+    return useMutation(
+      (clientRecord: ClientRecordForAdd) => clientApi.addClient(clientRecord),
+      {
+        onSuccess: (data) => {
+          queryClient.invalidateQueries('clientRecords');
+          console.log("on add mutation success: ", data);
+        },
+        onError: (e: AxiosError<AxiosErrorType>) => {
+          console.log("error on add client record", e);
+        }
+      }
+    );
+  };
+
 
 
   export const useDeleteClientMutation = () => {

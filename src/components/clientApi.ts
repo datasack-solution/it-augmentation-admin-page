@@ -36,6 +36,7 @@ interface ClientAPI{
     getClients:()=>Promise<ClientRecord[]>
     updateClient:(clientRecord:ClientRecord)=>Promise<void>
     deleteClient: (clientEmail:string)=>Promise<void>
+    addClient: (clientRecord:ClientRecord)=>Promise<void>
 }
 
 // const url = 'https://it-augmentation-server.vercel.app'
@@ -49,6 +50,11 @@ class ClientAPIService implements ClientAPI{
    async updateClient (clientRecord: ClientRecord):Promise<void>{
     return await axios.put(`${url}/clientsNew/${clientRecord.email}`,clientRecord)
    }
+
+   async addClient (clientRecord: ClientRecord):Promise<void>{
+    return await axios.post(`${url}/clientsNew`,clientRecord)
+   }
+
    async deleteClient (clientEmail: string): Promise<void>{
     return await axios.delete(`${url}/clientsNew/${clientEmail}`)
    }

@@ -337,6 +337,7 @@ const EditSkillSet: FunctionComponent<EditSkillSetProps> = ({
     }
 
     const onUpdateNew = async (updatedSkills:TransformedSkillsets[]) => {
+        console.log("incoming updated skills:",updatedSkills)
         if (updatableSkillSet){
             const updatedArrSkillSets = updatbaleClient.arrSkillsets?.map(skill=>{
                 if (skill._id==skillSetId){
@@ -351,6 +352,7 @@ const EditSkillSet: FunctionComponent<EditSkillSetProps> = ({
             const newUpdatedClient = {...updatedClient, arrSkillsets:updatedArrSkillSets}
 
             try{
+                // console.log("arr skills:",updatedArrSkillSets)
                 await updateClientMutation(newUpdatedClient)
                 handleCancel(false)
             }catch(e){

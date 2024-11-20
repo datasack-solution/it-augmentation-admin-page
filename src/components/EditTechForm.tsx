@@ -417,19 +417,33 @@ const EditSkillSetForm = ({
     onUpdate,
 }: {
     skillSet: TransformedSkillsets[];
-    onUpdate:(skillSet:TransformedSkillsets[])=>void
+    onUpdate: (skillSet: TransformedSkillsets[]) => void
 }) => {
     const [openCategory, setOpenCategory] = useState<string | null>(null);
 
     // Initialize quantities state based on skillSet
+    // const [techQuantities, setTechQuantities] = useState(() => {
+    //     return skillSet.reduce((acc, { technologies }) => {
+    //         technologies.forEach(({ tech, quantity }) => {
+    //             acc[tech] = quantity;
+    //         });
+    //         return acc;
+    //     }, {} as Record<string, number>);
+    // });
+
+
     const [techQuantities, setTechQuantities] = useState(() => {
-        return skillSet.reduce((acc, { technologies }) => {
+        return skillSet.reduce((acc, { category, technologies }) => {
             technologies.forEach(({ tech, quantity }) => {
-                acc[tech] = quantity;
+                if (!acc[category]) {
+                    acc[category] = {};
+                }
+                acc[category][tech] = quantity;
             });
             return acc;
-        }, {} as Record<string, number>);
+        }, {} as Record<string, Record<string, number>>);
     });
+
 
     // Custom technologies per category
     const [customTechnologies, setCustomTechnologies] = useState<{
@@ -442,89 +456,237 @@ const EditSkillSetForm = ({
         setOpenCategory(openCategory === category ? null : category);
     };
 
-    const incrementQuantity = (tech: string) => {
-        setTechQuantities(prev => ({
+    // const incrementQuantity = (tech: string) => {
+    //     setTechQuantities(prev => ({
+    //         ...prev,
+    //         [tech]: (prev[tech] || 0) + 1,
+    //     }));
+    // };
+
+    const incrementQuantity = (category: string, tech: string) => {
+        setTechQuantities((prev) => ({
             ...prev,
-            [tech]: (prev[tech] || 0) + 1,
+            [category]: {
+                ...(prev[category] || {}),
+                [tech]: ((prev[category]?.[tech] || 0) + 1),
+            },
         }));
     };
 
-    const decrementQuantity = (tech: string) => {
-        setTechQuantities(prev => ({
+
+    // const decrementQuantity = (tech: string) => {
+    //     setTechQuantities(prev => ({
+    //         ...prev,
+    //         [tech]: Math.max(0, (prev[tech] || 0) - 1),
+    //     }));
+    // };
+
+    const decrementQuantity = (category: string, tech: string) => {
+        setTechQuantities((prev) => ({
             ...prev,
-            [tech]: Math.max(0, (prev[tech] || 0) - 1),
+            [category]: {
+                ...(prev[category] || {}),
+                [tech]: Math.max(0, (prev[category]?.[tech] || 0) - 1),
+            },
         }));
     };
+
+
+    // const removeCustomAddedTech = (category: string, tech: string) => {
+    //     // Remove custom tech from quantities state
+    //     setTechQuantities(prev => {
+    //         const updatedQuantities = { ...prev };
+    //         delete updatedQuantities[tech];  // Remove tech from quantities
+    //         return updatedQuantities;
+    //     });
+
+    //     // remove the tech from the customTechnologies state for the specified category
+    //     setCustomTechnologies(prev => {
+    //         const updatedCustomTechnologies = { ...prev };
+
+    //         // filter out the custom tech from the specified category's tech list
+    //         updatedCustomTechnologies[category] = updatedCustomTechnologies[category].filter(item => item !== tech);
+
+    //         return updatedCustomTechnologies;
+    //     });
+    // };
 
     const removeCustomAddedTech = (category: string, tech: string) => {
         // Remove custom tech from quantities state
-        setTechQuantities(prev => {
+        setTechQuantities((prev) => {
             const updatedQuantities = { ...prev };
-            delete updatedQuantities[tech];  // Remove tech from quantities
+
+            if (updatedQuantities[category]) {
+                const { [tech]: _, ...remainingTechs } = updatedQuantities[category];
+                updatedQuantities[category] = remainingTechs;
+
+                // If the category becomes empty, delete it entirely
+                if (Object.keys(updatedQuantities[category]).length === 0) {
+                    delete updatedQuantities[category];
+                }
+            }
+
             return updatedQuantities;
         });
 
-        // remove the tech from the customTechnologies state for the specified category
-        setCustomTechnologies(prev => {
+        // Remove the tech from the customTechnologies state for the specified category
+        setCustomTechnologies((prev) => {
             const updatedCustomTechnologies = { ...prev };
 
-            // filter out the custom tech from the specified category's tech list
-            updatedCustomTechnologies[category] = updatedCustomTechnologies[category].filter(item => item !== tech);
+            if (updatedCustomTechnologies[category]) {
+                updatedCustomTechnologies[category] = updatedCustomTechnologies[category].filter(
+                    (item) => item !== tech
+                );
+
+                // If the category becomes empty, delete it entirely
+                if (updatedCustomTechnologies[category].length === 0) {
+                    delete updatedCustomTechnologies[category];
+                }
+            }
 
             return updatedCustomTechnologies;
         });
     };
 
 
+
+    // const addCustomTech = (category: string) => {
+    //     if (!newCustomTech.trim()) return;
+
+    //     setCustomTechnologies(prev => ({
+    //         ...prev,
+    //         [category]: [...(prev[category] || []), newCustomTech.trim()],
+    //     }));
+    //     setTechQuantities(prev => ({
+    //         ...prev,
+    //         [newCustomTech.trim()]: 0,
+    //     }));
+    //     setNewCustomTech('');
+    // };
+
     const addCustomTech = (category: string) => {
         if (!newCustomTech.trim()) return;
 
-        setCustomTechnologies(prev => ({
+        const trimmedTech = newCustomTech.trim();
+
+        // Update the customTechnologies state
+        setCustomTechnologies((prev) => ({
             ...prev,
-            [category]: [...(prev[category] || []), newCustomTech.trim()],
+            [category]: [...(prev[category] || []), trimmedTech],
         }));
-        setTechQuantities(prev => ({
+
+        // Update the techQuantities state with category awareness
+        setTechQuantities((prev) => ({
             ...prev,
-            [newCustomTech.trim()]: 0,
+            [category]: {
+                ...(prev[category] || {}),
+                [trimmedTech]: 0, // Default quantity
+            },
         }));
+
+        // Clear the input field
         setNewCustomTech('');
     };
 
 
-    const onUpdateConfirm = () => {
-        // Prepare the updated skill set data
-        const updatedSkillSets: TransformedSkillsets[] = Object.entries(technologies).map(([category, techList]) => {
-            // For each category, we gather the technologies and their updated quantities
-            const updatedTechnologies: TechnologyItem[] = techList.map(tech => {
-                // Get the quantity from the selectedTechnologies state, or default to 0
-                const quantity = techQuantities[tech] || 0;
 
-                // Check if the tech exists in the customTechnologies list and append '(custom)' if it does
-                // const techLabel = isCustomTech ? `${tech} (custom)` : tech;
+    // const onUpdateConfirm = () => {
+    //     // Prepare the updated skill set data
+    //     console.log("tech quantities:",techQuantities)
+    //     const updatedSkillSets: TransformedSkillsets[] = Object.entries(technologies).map(([category, techList]) => {
+    //         // For each category, we gather the technologies and their updated quantities
+    //         const updatedTechnologies: TechnologyItem[] = techList.map(tech => {
+    //             // Get the quantity from the selectedTechnologies state, or default to 0
+    //             const quantity = techQuantities[tech] || 0;
 
-                if (quantity>0){
-                    return {
-                        tech: tech,
-                        quantity
-                    };
-                }
-            }).filter(e=>!!e);
+    //             // Check if the tech exists in the customTechnologies list and append '(custom)' if it does
+    //             // const techLabel = isCustomTech ? `${tech} (custom)` : tech;
 
-            const customTechs = customTechnologies[category]
-            const custechs:TechnologyItem[] = customTechs?.map(t=>{
-                return {
-                    tech:t,
-                    quantity:techQuantities[t]
-                }
+    //             if (quantity>0){
+    //                 return {
+    //                     tech: tech,
+    //                     quantity
+    //                 };
+    //             }
+    //         }).filter(e=>!!e);
+
+    //         const customTechs = customTechnologies[category]
+    //         const custechs:TechnologyItem[] = customTechs?.map(t=>{
+    //             return {
+    //                 tech:t,
+    //                 quantity:techQuantities[t]
+    //             }
+    //         })
+
+    //         return {
+    //             category,
+    //             technologies: [...updatedTechnologies,...custechs||[]]
+    //         };
+    //     }).filter(e=>e.technologies.length>0);
+
+    //     onUpdate(updatedSkillSets)
+    // }
+
+    const processTechQuantities = (
+        techQuantities: Record<string, Record<string, number>>
+    ): TransformedSkillsets[] => {
+        return Object.entries(techQuantities)
+            .map(([category, techs]) => {
+                // Map each tech and its quantity to a TechnologyItem
+                const technologies: TechnologyItem[] = Object.entries(techs)
+                    .map(([tech, quantity]) => {
+                        if (quantity > 0) {
+                            return { tech, quantity };
+                        }
+                    })
+                    .filter((item): item is TechnologyItem => !!item); // Type guard to ensure valid TechnologyItem
+
+                // Return category with technologies if it has any
+                return technologies.length > 0
+                    ? { category, technologies }
+                    : null;
             })
+            .filter((item): item is TransformedSkillsets => !!item); // Filter out null entries
+    };
 
-            return {
-                category,
-                technologies: [...updatedTechnologies,...custechs||[]]
-            };
-        }).filter(e=>e.technologies.length>0);
-        onUpdate(updatedSkillSets)
-    }
+
+    const onUpdateConfirm = () => {
+        // console.log("tech quantities:", );
+
+        // Prepare the updated skill set data
+        // const updatedSkillSets: TransformedSkillsets[] = Object.entries(technologies).map(([category, techList]) => {
+        //     // Gather default technologies and their updated quantities
+        //     const updatedTechnologies: TechnologyItem[] = techList
+        //         .map((tech) => {
+        //             const quantity = techQuantities[category]?.[tech] || 0;
+        //             if (quantity > 0) {
+        //                 return { tech, quantity };
+        //             }
+        //         })
+        //         .filter((e) => !!e);
+
+        //     // Gather custom technologies for this category and their quantities
+        //     const customTechs = customTechnologies[category] || [];
+        //     const customTechItems: TechnologyItem[] = customTechs
+        //         .map((tech) => {
+        //             const quantity = techQuantities[category]?.[tech] || 0;
+        //             if (quantity > 0) {
+        //                 return { tech, quantity };
+        //             }
+        //         })
+        //         .filter((e) => !!e);
+
+        //     // Combine default and custom technologies for this category
+        //     return {
+        //         category,
+        //         technologies: [...updatedTechnologies, ...customTechItems],
+        //     };
+        // }).filter((entry) => entry.technologies.length > 0); // Remove categories with no technologies
+
+        // Pass the updated skill sets to the update handler
+        onUpdate(processTechQuantities(techQuantities));
+    };
+
 
     return (
         <>
@@ -540,7 +702,7 @@ const EditSkillSetForm = ({
                             >
                                 <p style={{ fontWeight: 'bold', color: '#5C3C00' }}>{category}</p>
                                 {techList.some(
-                                    tech => techQuantities[tech] && techQuantities[tech] > 0
+                                    tech => techQuantities[category]?.[tech] && techQuantities[category][tech] > 0
                                 ) && <EuiBeacon size={7} style={{ marginLeft: '10px' }} />}
                                 {(customTechnologies[category]?.length > 0) && <EuiBeacon size={7} style={{ marginLeft: '10px' }} color='warning' />}
                                 <EuiButtonIcon
@@ -604,17 +766,17 @@ const EditSkillSetForm = ({
                                                         aria-label={`decrement-${techName}`}
                                                         iconType="minus"
                                                         size="s"
-                                                        onClick={() => decrementQuantity(techName)}
-                                                        disabled={techQuantities[techName] <= 0}
+                                                        onClick={() => decrementQuantity(category, techName)}
+                                                        disabled={techQuantities[category]?.[techName] <= 0}
                                                     />
                                                     <EuiText className={styles.quantityDisplay}>
-                                                        {techQuantities[techName] || 0}
+                                                        {techQuantities[category]?.[techName] || 0}
                                                     </EuiText>
                                                     <EuiButtonIcon
                                                         aria-label={`increment-${techName}`}
                                                         iconType="plus"
                                                         size="s"
-                                                        onClick={() => incrementQuantity(techName)}
+                                                        onClick={() => incrementQuantity(category, techName)}
                                                     />
                                                 </div>
                                             </div>
@@ -634,17 +796,17 @@ const EditSkillSetForm = ({
                                                     aria-label={`decrement-${customTech}`}
                                                     iconType="minus"
                                                     size="s"
-                                                    onClick={() => decrementQuantity(customTech)}
-                                                    disabled={techQuantities[customTech] <= 0}
+                                                    onClick={() => decrementQuantity(category, customTech)}
+                                                    disabled={techQuantities[category][customTech] <= 0}
                                                 />
                                                 <EuiText className={styles.quantityDisplay}>
-                                                    {techQuantities[customTech] || 0}
+                                                    {techQuantities[category][customTech] || 0}
                                                 </EuiText>
                                                 <EuiButtonIcon
                                                     aria-label={`increment-${customTech}`}
                                                     iconType="plus"
                                                     size="s"
-                                                    onClick={() => incrementQuantity(customTech)}
+                                                    onClick={() => incrementQuantity(category, customTech)}
                                                 />
                                             </div>
                                         </div>

@@ -1,7 +1,7 @@
+import { ClientRecord } from '@/util/util';
 import ExcelJS from 'exceljs';
-import { ClientRecord1 } from './clientApi';
 
-const convertToCSV = (objArray: Array<ClientRecord1>) => {
+const convertToCSV = (objArray: Array<ClientRecord>) => {
     const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
     let str = '';
 
@@ -11,7 +11,7 @@ const convertToCSV = (objArray: Array<ClientRecord1>) => {
         'Email',
         'Phone',
         'Date',
-        'Requirements',
+        'Reason',
         'NDA',
         'City',
         'Contacted Channel',
@@ -24,7 +24,7 @@ const convertToCSV = (objArray: Array<ClientRecord1>) => {
 
     for (let i = 0; i < array.length; i++) {
         let line = '';
-        const clientRecord: ClientRecord1 = array[i];
+        const clientRecord: ClientRecord = array[i];
 
         line += [
             clientRecord.industry,
@@ -32,7 +32,7 @@ const convertToCSV = (objArray: Array<ClientRecord1>) => {
             clientRecord.email,
             clientRecord.phone,
             clientRecord.date,
-            clientRecord.requirements ? clientRecord.requirements : ' - ',
+            clientRecord.reason ? clientRecord.reason : ' - ',
             clientRecord.nda ? 'Yes' : 'No',
             clientRecord.city ? clientRecord.city : ' - ',
             clientRecord.contactedChannel ? clientRecord.contactedChannel : ' - ',
@@ -41,7 +41,7 @@ const convertToCSV = (objArray: Array<ClientRecord1>) => {
             clientRecord.remarks ? clientRecord.remarks : ' - '
         ].join(',') + ',';
 
-        const hasEmptySkillSet=clientRecord.arrSkillsets == undefined || clientRecord.arrSkillsets.length == 0 || (clientRecord.arrSkillsets.length==1 && clientRecord.arrSkillsets[0].predefinedTechData.length==0 && clientRecord.arrSkillsets[0].customTechsData?.length==0 )
+        const hasEmptySkillSet=clientRecord.arrSkillsets == undefined || clientRecord.arrSkillsets.length == 0 || (clientRecord.arrSkillsets.length==1 && clientRecord.arrSkillsets[0].skillset.length==0)
 
 
         if (!hasEmptySkillSet && !!clientRecord.arrSkillsets) {
@@ -49,26 +49,20 @@ const convertToCSV = (objArray: Array<ClientRecord1>) => {
 
             clientRecord.arrSkillsets.forEach((skillSet,index) => {
                 skillsetArray.push(`Record: ${index+1}`)
-                skillSet.predefinedTechData.forEach(mainCat => {
-                    let predefinedSkillSets = `${mainCat.mainCategory} > `;
-                    mainCat.subcategories.forEach(subCat => {
-                        predefinedSkillSets += `${subCat.subcategory} > `;
-                        subCat.items.forEach((item, subItemIdx) => {
-                            predefinedSkillSets += `${item.techName} (Qty: ${item.quantity})`;
-                            if (subItemIdx < subCat.items.length - 1) {
+                // skillSet.predefinedTechData.forEach(mainCat => {
+                    
+                // });
+                let predefinedSkillSets = ` >`;
+                    skillSet.skillset.forEach(subCat => {
+                        predefinedSkillSets += `${subCat.category} > `;
+                        subCat.technologies.forEach((item, subItemIdx) => {
+                            predefinedSkillSets += `${item.tech} (Qty: ${item.quantity})`;
+                            if (subItemIdx < subCat.technologies.length - 1) {
                                 predefinedSkillSets += ' & ';
                             }
                         });
                     });
                     skillsetArray.push(predefinedSkillSets);
-                });
-
-                if (skillSet.customTechsData) {
-                    skillsetArray.push("Custom Tech: ")
-                    skillSet.customTechsData.forEach(customTech => {
-                        skillsetArray.push(`${customTech.techName} (Qty: ${customTech.quantity})`);
-                    });
-                }
             });
 
             line += '"' + JSON.stringify(skillsetArray) + '"';
@@ -82,7 +76,7 @@ const convertToCSV = (objArray: Array<ClientRecord1>) => {
 
 
 
-export const downloadCSV = (data: Array<ClientRecord1>, fileName: string) => {
+export const downloadCSV = (data: Array<ClientRecord>, fileName: string) => {
     const csvData = new Blob([convertToCSV(data)], { type: 'text/csv' });
     const csvURL = URL.createObjectURL(csvData);
     const link = document.createElement('a');
@@ -103,7 +97,7 @@ function capitalize(word:string):string{
 }
 
 
-const convertToExcel = async (data: Array<ClientRecord1>) => {
+const convertToExcel = async (data: Array<ClientRecord>) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('ClientRecords');
 
@@ -113,7 +107,7 @@ const convertToExcel = async (data: Array<ClientRecord1>) => {
         'Email',
         'Phone',
         'Schedule',
-        'Requirements',
+        'reason',
         'NDA',
         'City',
         'Contacted Channel',
@@ -149,32 +143,34 @@ const convertToExcel = async (data: Array<ClientRecord1>) => {
                 }else{
                     skillsetArray.push({ text: `\nRecord ${index+1} \r`, color: 'FFA500' }); 
                 }
-                skillset.predefinedTechData.forEach(mainCat => {
-                    skillsetArray.push({ text: `${mainCat.mainCategory} \r`, color: 'FF0000' }); 
-                    mainCat.subcategories.forEach((subCat, subCatIdx) => {
-                        if (subCatIdx != 0) {
-                            skillsetArray.push({ text: `\r`, color: '000000' });
-                        }
-                        skillsetArray.push({ text: `${subCat.subcategory} --> `, color: '2980B9' }); 
-                        subCat.items.forEach((item, subItemIdx) => {
-                            skillsetArray.push({ text: `${item.techName}`, color: 'BE44AD' });
-                            skillsetArray.push({ text: ` (Qty:${item.quantity})`, color: '000000' });
+                // skillset.predefinedTechData.forEach(mainCat => {
+                //     skillsetArray.push({ text: `${mainCat.mainCategory} \r`, color: 'FF0000' }); 
+                   
+                //     skillsetArray.push({ text: '\r\n', color: '000000' });
+                // });
 
-                            if (subItemIdx < subCat.items.length - 1) {
-                                skillsetArray.push({ text: ' & ', color: '909090' });
-                            }
-                        });
+                skillset.skillset.forEach((subCat, subCatIdx) => {
+                    if (subCatIdx != 0) {
+                        skillsetArray.push({ text: `\r`, color: '000000' });
+                    }
+                    skillsetArray.push({ text: `${subCat.category} --> `, color: '2980B9' }); 
+                    subCat.technologies.forEach((item, subItemIdx) => {
+                        skillsetArray.push({ text: `${item.tech}`, color: 'BE44AD' });
+                        skillsetArray.push({ text: ` (Qty:${item.quantity})`, color: '000000' });
+
+                        if (subItemIdx < subCat.technologies.length - 1) {
+                            skillsetArray.push({ text: ' & ', color: '909090' });
+                        }
                     });
-                    skillsetArray.push({ text: '\r\n', color: '000000' });
                 });
 
-                if (skillset.customTechsData) {
-                    skillsetArray.push({ text: "Custom Tech:", color: 'FF0000' });
-                    skillset.customTechsData.forEach(customTech => {
-                        skillsetArray.push({ text: ` ${customTech.techName}`, color: 'BE44AD' });
-                        skillsetArray.push({ text: ` (Qty:${customTech.quantity}), `, color: '000000' });
-                    });
-                }
+                // if (skillset.customTechsData) {
+                //     skillsetArray.push({ text: "Custom Tech:", color: 'FF0000' });
+                //     skillset.customTechsData.forEach(customTech => {
+                //         skillsetArray.push({ text: ` ${customTech.techName}`, color: 'BE44AD' });
+                //         skillsetArray.push({ text: ` (Qty:${customTech.quantity}), `, color: '000000' });
+                //     });
+                // }
                 skillsetArray.push({ text: '\r\n', color: '000000' });
             });
         }
@@ -185,7 +181,7 @@ const convertToExcel = async (data: Array<ClientRecord1>) => {
             clientRecord.email,
             clientRecord.phone,
             clientRecord.date,
-            clientRecord.requirements && clientRecord.requirements.length > 0 ? clientRecord.requirements : '     -     ',
+            clientRecord.reason && clientRecord.reason.length > 0 ? clientRecord.reason : '     -     ',
             clientRecord.nda ? '     Yes     ' : '     No     ',
             clientRecord.city && clientRecord.city.length > 0 ? capitalize(clientRecord.city) : '     -     ',
             clientRecord.contactedChannel && clientRecord.contactedChannel.length > 0 ? clientRecord.contactedChannel : '     -     ',
@@ -196,7 +192,7 @@ const convertToExcel = async (data: Array<ClientRecord1>) => {
 
         const dataRow = worksheet.addRow(row);
 
-        const hasEmptySkillValue=clientRecord.arrSkillsets == undefined || clientRecord.arrSkillsets.length == 0 || (clientRecord.arrSkillsets.length==1 && clientRecord.arrSkillsets[0].predefinedTechData.length==0 && clientRecord.arrSkillsets[0].customTechsData?.length==0 )
+        const hasEmptySkillValue=clientRecord.arrSkillsets == undefined || clientRecord.arrSkillsets.length == 0 || (clientRecord.arrSkillsets.length==1 && clientRecord.arrSkillsets[0].skillset.length==0)
         if (!hasEmptySkillValue) {
             dataRow.height = 150;
         }
@@ -235,7 +231,7 @@ const convertToExcel = async (data: Array<ClientRecord1>) => {
     const buffer = await workbook.xlsx.writeBuffer();
     return new Blob([buffer], { type: 'application/octet-stream' });
 };
-export const downloadExcel = async (data: Array<ClientRecord1>, fileName: string) => {
+export const downloadExcel = async (data: Array<ClientRecord>, fileName: string) => {
     const excelBlob = await convertToExcel(data);
     const excelURL = URL.createObjectURL(excelBlob);
     const link = document.createElement('a');

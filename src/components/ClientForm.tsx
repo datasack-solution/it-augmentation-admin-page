@@ -1,28 +1,29 @@
 import { ClientRecord } from '@/util/util';
 import {
   EuiButton,
-  EuiDatePicker,
   EuiFieldText,
   EuiFlexGroup,
   EuiForm,
   EuiFormRow,
   EuiSelect,
+  EuiSpacer,
   EuiSwitch,
   EuiTextArea
 } from '@elastic/eui';
-import moment, { Moment } from 'moment';
 import { FunctionComponent } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import styles from '../styles/ClientForm.module.css';
+
 
 interface EditFormProps {
   client: ClientRecord;
   onSave: (data: ClientRecord) => void;
   onCancel: () => void;
-  isAdmin:boolean
+  isAdmin: boolean
 }
 
-const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel,isAdmin }) => {
-  const { handleSubmit, setValue, watch, control } = useForm<ClientRecord>({
+const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel, isAdmin }) => {
+  const { handleSubmit, setValue, watch, control, register, formState: { errors } } = useForm<ClientRecord>({
     defaultValues: client,
   });
 
@@ -37,45 +38,56 @@ const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel,i
       <EuiFormRow label="Name">
         <EuiFieldText disabled={!isAdmin} value={data.name} onChange={e => setValue('name', e.target.value)} />
       </EuiFormRow>
+
       <EuiFormRow label="Industry">
         <EuiFieldText disabled={!isAdmin} value={data.industry} onChange={e => setValue('industry', e.target.value)} />
       </EuiFormRow>
-      <EuiFormRow  label="Email">
+
+      <EuiFormRow label="Email">
         <EuiFieldText disabled={!isAdmin} value={data.email} onChange={e => setValue('email', e.target.value)} />
       </EuiFormRow>
+
       <EuiFormRow label="Phone">
         <EuiFieldText disabled={!isAdmin} value={data.phone} onChange={e => setValue('phone', e.target.value)} />
       </EuiFormRow>
-      <EuiFormRow label="Scheduled Date">
-        <Controller
-          control={control}
-          name="date"
-          render={({ field }) => (
-            <EuiDatePicker
-              selected={field.value ? moment(field.value) : null}
-              onChange={(date: Moment | null) => {
-                if (date) {
-                  setValue('date', date.format('YYYY-MM-DD hh:mm A'));
-                }
-              }}
-              showTimeSelect
-              dateFormat="YYYY-MM-DD hh:mm A"
-              timeFormat="hh:mm A"
-              timeIntervals={5}
-            />
-          )}
+
+      <EuiSpacer size='m'/>
+  <div>
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Preferred Date</label>
+        <input
+          type="date"
+          {...register("date", { required: "Please select a date" })}
+          className={styles.input}
         />
-      </EuiFormRow>
+        {errors.date && <p className={styles.error}>{errors.date.message}</p>}
+      </div>
+      <EuiSpacer size='m'/>
+
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Preferred Time</label>
+        <input
+          type="time"
+          {...register("time", { required: "Please select a time" })}
+          className={`${styles.input} ${styles.timeInput}`}
+        />
+        {errors.time && <p className={styles.error}>{errors.time.message}</p>}
+      </div>
+    </div>
+    <EuiSpacer size='m' />
 
       <EuiFormRow label="Requirements">
         <EuiTextArea value={data.reason} onChange={e => setValue('reason', e.target.value)} />
       </EuiFormRow>
+
       <EuiFormRow label="Wants to sign NDA">
         <EuiSwitch checked={data.nda} onChange={e => setValue('nda', e.target.checked)} label="NDA" />
       </EuiFormRow>
+
       <EuiFormRow label="City">
         <EuiFieldText value={data.city} onChange={e => setValue('city', e.target.value)} />
       </EuiFormRow>
+
       <EuiFormRow label="Contacted Channel">
         <EuiSelect
           onChange={e => setValue('contactedChannel', e.target.value as 'Call' | "WhatsApp" | 'VoiceMail' | 'Email')}
@@ -90,15 +102,19 @@ const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel,i
           ]}
         />
       </EuiFormRow>
+
       <EuiFormRow label="Responded">
         <EuiSwitch checked={data.responded || false} onChange={e => setValue('responded', e.target.checked)} label="Responded" />
       </EuiFormRow>
+
       <EuiFormRow label="Is Interested">
         <EuiSwitch checked={data.isInterested || false} onChange={e => setValue('isInterested', e.target.checked)} label="Is Interested" />
       </EuiFormRow>
+
       <EuiFormRow label="Remarks">
         <EuiFieldText value={data.remarks} onChange={e => setValue('remarks', e.target.value)} />
       </EuiFormRow>
+
       <EuiFormRow>
         <EuiFlexGroup>
           <EuiButton type="submit" fill>
@@ -107,6 +123,7 @@ const EditForm: FunctionComponent<EditFormProps> = ({ client, onSave, onCancel,i
           <EuiButton onClick={onCancel}>Cancel</EuiButton>
         </EuiFlexGroup>
       </EuiFormRow>
+      
     </EuiForm>
   );
 };

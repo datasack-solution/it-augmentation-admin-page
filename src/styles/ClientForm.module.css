@@ -1,0 +1,47 @@
+/* formStyles.css */
+
+/* General form group styling */
+.form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .label {
+    font-size: 0.875rem;
+    color: #4a4a4a; /* Gray color */
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  /* Input styles */
+  .input {
+    width: 100%;
+    border: 1px solid #ccc;
+    min-height: 2.75rem; /* Equivalent to min-h-11 */
+    background-color: transparent;
+    border-radius: 5px; /* Rounded */
+    padding: 0.5rem 1rem; /* Padding for inputs */
+    font-size: 1rem;
+    color: #000;
+    outline: none;
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  .input:focus {
+    border-color: #ff8a00; /* Focus ring color (orange) */
+  }
+  
+  .input.date-input {
+    padding-right: 3rem; /* Optional, for date input icon positioning */
+  }
+  
+  .input.time-input {
+    padding-right: 3rem; /* Optional, for time input icon positioning */
+  }
+  
+  /* Error message */
+  .error {
+    color: #f87171; /* Red color for error messages */
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+  

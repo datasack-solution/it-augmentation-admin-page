@@ -8,6 +8,7 @@ import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation }
 // import { ClientRecord } from "./clientApi";
 import { ClientRecord } from "@/util/util";
 import EditSkillSet from "./EditSkillSet";
+import moment from "moment";
 
 export interface ClientTableProps {
     currentUser?: Admin
@@ -241,16 +242,17 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
             name: 'Schedule',
             sortable: (client: ClientRecord) => new Date(client.date).getTime(),
             render: (client: ClientRecord) => {
-                const date = new Date(client.date);
-                const formattedDate = date.toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true,
-                });
-                return <EuiText size="s">{formattedDate}</EuiText>
+                return <div>
+                    <EuiFlexItem grow>
+                        {moment(client.date).format('DD-MM-YYYY - dddd')}
+                    </EuiFlexItem>
+                    <EuiFlexItem grow>
+                        <div style={{display:'flex',gap:'5px', alignItems:'center'}}>
+                       <EuiIcon type={'clock'}/> 
+                       <EuiText size="s">{client.time}</EuiText>
+                       </div>
+                    </EuiFlexItem>
+                </div>
             }
         },
         {

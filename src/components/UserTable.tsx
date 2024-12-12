@@ -87,7 +87,7 @@ const UsersTable:FunctionComponent<UsersTableProps> = ({
     const currentUserAsAdminToDelete = (currentUser?.email==deleteOpen.user?.email) && (currentUser?.role=='admin' && deleteOpen.user?.role=='admin')
 
     return <Fragment>
-        <EuiButtonEmpty style={{ marginLeft: '-10px' }} iconSize="s" size="s" iconType="gear" onClick={() => { setModalOpen(true) }} >user management</EuiButtonEmpty>
+        <EuiButtonEmpty style={{ marginLeft: '-10px' }} iconSize="s" size="s" iconType="gear" onClick={() => { setModalOpen(true) }} >User Management</EuiButtonEmpty>
 
         {isModalOpen && <EuiModal onClose={() => {
             setModalOpen(false), setEditUser({

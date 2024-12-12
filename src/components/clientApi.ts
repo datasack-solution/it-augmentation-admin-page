@@ -39,12 +39,11 @@ interface ClientAPI{
     addClient: (clientRecord:ClientRecord)=>Promise<void>
 }
 
-const url = 'https://it-augmentation-server.vercel.app'
-// const url = 'http://localhost:4000'
+const  BASE_URL = process.env.NODE_ENV=='development'?'http://localhost:4000':'https://it-augmentation-server.vercel.app' 
 
 class ClientAPIService implements ClientAPI{
    async getClients (): Promise<ClientRecord[]>{
-        const res = await axios.get(`${url}/clientsNew`)
+        const res = await axios.get(`${BASE_URL}/clientsNew`)
         return res.data.map((client: ClientRecord) => ({
             ...client,
             createdAt: client.createdAt ? new Date(client.createdAt) : undefined,
@@ -52,15 +51,15 @@ class ClientAPIService implements ClientAPI{
     }
     
    async updateClient (clientRecord: ClientRecord):Promise<void>{
-    return await axios.put(`${url}/clientsNew/${clientRecord.email}`,clientRecord)
+    return await axios.put(`${BASE_URL}/clientsNew/${clientRecord.email}`,clientRecord)
    }
 
    async addClient (clientRecord: ClientRecord):Promise<void>{
-    return await axios.post(`${url}/clientsNew`,clientRecord)
+    return await axios.post(`${BASE_URL}/clientsNew`,clientRecord)
    }
 
    async deleteClient (clientEmail: string): Promise<void>{
-    return await axios.delete(`${url}/clientsNew/${clientEmail}`)
+    return await axios.delete(`${BASE_URL}/clientsNew/${clientEmail}`)
    }
 }
 

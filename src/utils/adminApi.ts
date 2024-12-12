@@ -23,8 +23,7 @@ export interface UserAPI{
      }>
 }
 
-const BASE_URL = "https://it-augmentation-server.vercel.app"
-// const BASE_URL = "http://localhost:4000"
+const  BASE_URL = process.env.NODE_ENV=='development'?'http://localhost:4000':'https://it-augmentation-server.vercel.app' 
 
 class UserAPIService implements UserAPI{
     async createAdmin (user:Admin): Promise<AxiosResponse>{

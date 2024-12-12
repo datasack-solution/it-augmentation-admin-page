@@ -80,6 +80,7 @@ export interface ClientRecord extends ClientModel{
     responded?:boolean,
     isInterested?:boolean,
     remarks?:string
+    createdAt?:Date
 }
 
 export interface ClientRecordForAdd extends ClientModelForAdd{

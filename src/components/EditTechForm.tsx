@@ -1,20 +1,14 @@
-import React, { useState } from 'react';
+import { TechnologyItem, TransformedSkillsets } from '@/util/util';
 import {
-    EuiModalHeader,
-    EuiModalBody,
-    EuiModalFooter,
     EuiButton,
-    EuiText,
-    EuiComboBox,
-    EuiBadge,
-    EuiFlexGroup,
-    EuiFlexItem,
     EuiButtonIcon,
-    EuiComboBoxOptionOption,
     EuiFieldText,
     EuiIcon,
+    EuiModalBody,
+    EuiModalFooter,
+    EuiText
 } from '@elastic/eui';
-import { SkillSet, TechnologyItem, TransformedSkillsets } from '@/util/util';
+import { useState } from 'react';
 
 export type Technologies = {
     "Core Banking": string[];
@@ -692,146 +686,170 @@ const EditSkillSetForm = ({
         <>
             <EuiModalBody>
                 <div className={styles.pricingContainer}>
-                    {Object.entries(technologies).map(([category, techList]) => (
-                        <div key={category} className={styles.category}>
-                            {/* Category Header */}
-                            <div
-                                className={`${styles.categoryHeader} ${openCategory === category ? styles.active : ''
-                                    }`}
-                                onClick={() => toggleCategory(category)}
-                            >
-                                <p style={{ fontWeight: 'bold', color: '#5C3C00' }}>{category}</p>
-                                {techList.some(
-                                    tech => techQuantities[category]?.[tech] && techQuantities[category][tech] > 0
-                                ) && <EuiBeacon size={7} style={{ marginLeft: '10px' }} />}
-                                {(customTechnologies[category]?.length > 0) && <EuiBeacon size={7} style={{ marginLeft: '10px' }} color='warning' />}
-                                <EuiButtonIcon
-                                    aria-label={`toggle-${category}`}
-                                    iconType={openCategory === category ? 'arrowDown' : 'arrowRight'}
-                                    className={styles.downIcon}
-                                />
-                            </div>
+                    {Object.entries(technologies).map(([category, techList]) => {
 
-                            {/* Technology List */}
-                            {openCategory === category && (
-                                <div className={styles.techList}>
-                                    {/* Default Techs */}
-                                    {/* {techList.map(tech => (
-                <div key={tech} className={styles.techItem}>
-                  <p style={{ fontWeight: 'normal', fontSize: '13px', color: '#5C3C00' }}>
-                    {tech}
-                  </p>
-                  <div className={styles.quantityControls}>
-                    <EuiButtonIcon
-                      aria-label={`decrement-${tech}`}
-                      iconType="minus"
-                      size="s"
-                      onClick={() => decrementQuantity(tech)}
-                      disabled={techQuantities[tech] <= 0}
-                    />
-                    <EuiText className={styles.quantityDisplay}>
-                      {techQuantities[tech] || 0}
-                    </EuiText>
-                    <EuiButtonIcon
-                      aria-label={`increment-${tech}`}
-                      iconType="plus"
-                      size="s"
-                      onClick={() => incrementQuantity(tech)}
-                    />
-                  </div>
-                </div>
-              ))} */}
+                        const hasDefaultQuantities = techList.some(
+                            tech => techQuantities[category]?.[tech] && techQuantities[category][tech] > 0
+                        );
 
-                                    {[
-                                        // Merge Default Techs and Custom Techs from Backend
-                                        ...techList,
-                                        ...(skillSet
-                                            ?.find(item => item.category === category)
-                                            ?.technologies.filter(
-                                                tech => !techList.includes(tech.tech) // Avoid duplicates
-                                            )
-                                            .map(customTech => `${customTech.tech} (custom)`) || [])
-                                    ].map(tech => {
-                                        // Extract tech name and detect if it's custom
-                                        const isCustom = tech.endsWith('(custom)');
-                                        const techName = isCustom ? tech.replace(' (custom)', '') : tech;
+                        const hasCustomTechnologies = (customTechnologies[category]?.length || 0) > 0;
 
-                                        return (
-                                            <div key={tech} className={styles.techItem}>
+                        const hasCustomQuantities = Object.keys(techQuantities[category] || {}).some(
+                            tech => !techList.includes(tech) && techQuantities[category][tech] > 0
+                        );
+
+                        const isBeaconVisible = hasDefaultQuantities || hasCustomQuantities || hasCustomTechnologies
+
+                        return (
+                            <div key={category} className={styles.category}>
+                                {/* Category Header */}
+                                <div
+                                    className={`${styles.categoryHeader} ${openCategory === category ? styles.active : ''
+                                        }`}
+                                    onClick={() => toggleCategory(category)}
+                                >
+                                    <p style={{ fontWeight: 'bold', color: '#5C3C00' }}>{category}</p>
+
+                                        {isBeaconVisible &&  <EuiBeacon
+                                                size={7}
+                                                style={{ marginLeft: '10px' }}
+                                                color="success"
+                                            />}
+
+
+
+                                    <EuiButtonIcon
+                                        aria-label={`toggle-${category}`}
+                                        iconType={openCategory === category ? 'arrowDown' : 'arrowRight'}
+                                        className={styles.downIcon}
+                                    />
+                                </div>
+
+                                {/* Technology List */}
+                                {openCategory === category && (
+                                    <div className={styles.techList}>
+                                        {/* Default Techs */}
+                                        {/* {techList.map(tech => (
+                    <div key={tech} className={styles.techItem}>
+                      <p style={{ fontWeight: 'normal', fontSize: '13px', color: '#5C3C00' }}>
+                        {tech}
+                      </p>
+                      <div className={styles.quantityControls}>
+                        <EuiButtonIcon
+                          aria-label={`decrement-${tech}`}
+                          iconType="minus"
+                          size="s"
+                          onClick={() => decrementQuantity(tech)}
+                          disabled={techQuantities[tech] <= 0}
+                        />
+                        <EuiText className={styles.quantityDisplay}>
+                          {techQuantities[tech] || 0}
+                        </EuiText>
+                        <EuiButtonIcon
+                          aria-label={`increment-${tech}`}
+                          iconType="plus"
+                          size="s"
+                          onClick={() => incrementQuantity(tech)}
+                        />
+                      </div>
+                    </div>
+                  ))} */}
+
+                                        {[
+                                            // Merge Default Techs and Custom Techs from Backend
+                                            ...techList,
+                                            ...(skillSet
+                                                ?.find(item => item.category === category)
+                                                ?.technologies.filter(
+                                                    tech => !techList.includes(tech.tech) // Avoid duplicates
+                                                )
+                                                .map(customTech => `${customTech.tech} (custom)`) || [])
+                                        ].map(tech => {
+                                            // Extract tech name and detect if it's custom
+                                            const isCustom = tech.endsWith('(custom)');
+                                            const techName = isCustom ? tech.replace(' (custom)', '') : tech;
+
+                                            return (
+                                                <div key={tech} className={styles.techItem}>
+                                                    <p style={{ fontWeight: 'normal', fontSize: '13px', color: '#5C3C00' }}>
+                                                        {tech}
+                                                    </p>
+                                                    <div className={styles.quantityControls}>
+                                                        <EuiButtonIcon
+                                                            aria-label={`decrement-${techName}`}
+                                                            iconType="minus"
+                                                            size="s"
+                                                            onClick={() => decrementQuantity(category, techName)}
+                                                            disabled={techQuantities[category]?.[techName] <= 0}
+                                                        />
+                                                        <EuiText className={styles.quantityDisplay}>
+                                                            {techQuantities[category]?.[techName] || 0}
+                                                        </EuiText>
+                                                        <EuiButtonIcon
+                                                            aria-label={`increment-${techName}`}
+                                                            iconType="plus"
+                                                            size="s"
+                                                            onClick={() => incrementQuantity(category, techName)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+
+                                        {/* custom Techs */}
+                                        {customTechnologies[category]?.map(customTech => (
+                                            <div key={customTech} className={styles.techItem}>
                                                 <p style={{ fontWeight: 'normal', fontSize: '13px', color: '#5C3C00' }}>
-                                                    {tech}
+                                                    {customTech} <span style={{ fontStyle: 'italic' }}>(added)  <EuiIcon type='trash' cursor={'pointer'} color='danger' size='s' onClick={() => {
+                                                        removeCustomAddedTech(category, customTech)
+                                                    }} /></span>
                                                 </p>
                                                 <div className={styles.quantityControls}>
                                                     <EuiButtonIcon
-                                                        aria-label={`decrement-${techName}`}
+                                                        aria-label={`decrement-${customTech}`}
                                                         iconType="minus"
                                                         size="s"
-                                                        onClick={() => decrementQuantity(category, techName)}
-                                                        disabled={techQuantities[category]?.[techName] <= 0}
+                                                        onClick={() => decrementQuantity(category, customTech)}
+                                                        disabled={techQuantities[category][customTech] <= 0}
                                                     />
                                                     <EuiText className={styles.quantityDisplay}>
-                                                        {techQuantities[category]?.[techName] || 0}
+                                                        {techQuantities[category][customTech] || 0}
                                                     </EuiText>
                                                     <EuiButtonIcon
-                                                        aria-label={`increment-${techName}`}
+                                                        aria-label={`increment-${customTech}`}
                                                         iconType="plus"
                                                         size="s"
-                                                        onClick={() => incrementQuantity(category, techName)}
+                                                        onClick={() => incrementQuantity(category, customTech)}
                                                     />
                                                 </div>
                                             </div>
-                                        );
-                                    })}
+                                        ))}
 
-                                    {/* custom Techs */}
-                                    {customTechnologies[category]?.map(customTech => (
-                                        <div key={customTech} className={styles.techItem}>
-                                            <p style={{ fontWeight: 'normal', fontSize: '13px', color: '#5C3C00' }}>
-                                                {customTech} <span style={{ fontStyle: 'italic' }}>(added)  <EuiIcon type='trash' cursor={'pointer'} color='danger' size='s' onClick={() => {
-                                                    removeCustomAddedTech(category, customTech)
-                                                }} /></span>
-                                            </p>
-                                            <div className={styles.quantityControls}>
-                                                <EuiButtonIcon
-                                                    aria-label={`decrement-${customTech}`}
-                                                    iconType="minus"
-                                                    size="s"
-                                                    onClick={() => decrementQuantity(category, customTech)}
-                                                    disabled={techQuantities[category][customTech] <= 0}
-                                                />
-                                                <EuiText className={styles.quantityDisplay}>
-                                                    {techQuantities[category][customTech] || 0}
-                                                </EuiText>
-                                                <EuiButtonIcon
-                                                    aria-label={`increment-${customTech}`}
-                                                    iconType="plus"
-                                                    size="s"
-                                                    onClick={() => incrementQuantity(category, customTech)}
-                                                />
-                                            </div>
+                                        {/* Add Custom Tech */}
+                                        <div className={styles.addCustomTech}>
+                                            <EuiFieldText
+                                                placeholder="Add custom technology"
+                                                value={newCustomTech}
+                                                onChange={e => setNewCustomTech(e.target.value)}
+                                                compressed
+                                            />
+                                            <EuiButton
+                                                size="s"
+                                                onClick={() => addCustomTech(category)}
+                                                disabled={!newCustomTech.trim()}
+                                            >
+                                                Add
+                                            </EuiButton>
                                         </div>
-                                    ))}
-
-                                    {/* Add Custom Tech */}
-                                    <div className={styles.addCustomTech}>
-                                        <EuiFieldText
-                                            placeholder="Add custom technology"
-                                            value={newCustomTech}
-                                            onChange={e => setNewCustomTech(e.target.value)}
-                                            compressed
-                                        />
-                                        <EuiButton
-                                            size="s"
-                                            onClick={() => addCustomTech(category)}
-                                            disabled={!newCustomTech.trim()}
-                                        >
-                                            Add
-                                        </EuiButton>
                                     </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                )}
+                            </div>
+                        )
+                    }
+
+
+
+                    )}
                 </div>
             </EuiModalBody>
 

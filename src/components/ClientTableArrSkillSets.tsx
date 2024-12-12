@@ -1,13 +1,13 @@
 "use client"
-import { EuiBadge, EuiBasicTableColumn, EuiButton, EuiButtonIcon, EuiFieldSearch, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiInMemoryTable, EuiModal, EuiModalBody, EuiModalHeader, EuiProgress, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui";
+import { Admin } from "@/utils/adminApi";
+import { EuiBadge, EuiBasicTableColumn, EuiButton, EuiButtonIcon, EuiFieldSearch, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiInMemoryTable, EuiModal, EuiModalBody, EuiModalHeader, EuiModalHeaderTitle, EuiProgress, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui";
 import { Fragment, FunctionComponent, useEffect, useState } from "react";
 import EditForm from "./ClientForm";
-import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation } from "./hook";
 import { downloadCSV, downloadExcel } from "./exportArrSkillSets";
-import { Admin } from "@/utils/adminApi";
+import { useDeleteClientMutation, useGetClientRecords, useUpdateClientMutation } from "./hook";
 // import { ClientRecord } from "./clientApi";
-import EditSkillSet from "./EditSkillSet";
 import { ClientRecord } from "@/util/util";
+import EditSkillSet from "./EditSkillSet";
 
 export interface ClientTableProps {
     currentUser?: Admin
@@ -27,10 +27,11 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
         client: undefined,
         isOpen: false
     })
-    const { data: clientRecords, isLoading: isClientRecordsLoading } = useGetClientRecords(2000)
+    const { data: clientRecords, isLoading: isClientRecordsLoading } = useGetClientRecords()
     const { isLoading: isUpdateClientMutationLoading, error: UpdateClientMutationError, mutateAsync: UpdateClientMutation } = useUpdateClientMutation()
     const { isLoading: isDeleteClientMutationLoading, error: DeleteClientMutationError, mutateAsync: DeleteClientMutation } = useDeleteClientMutation()
-    const [editSkillModalOpen, setEditSkillModalOpen] = useState<{ isOpen: boolean, updatableClient: ClientRecord | undefined, skillSetId: string,isAdd:boolean }>({ isOpen: false, updatableClient: undefined, skillSetId: '', isAdd:false })
+    const [editSkillModalOpen, setEditSkillModalOpen] = useState<{ isOpen: boolean, updatableClient: ClientRecord | undefined, skillSetId: string, isAdd: boolean }>({ isOpen: false, updatableClient: undefined, skillSetId: '', isAdd: false })
+    const [isConfirmDeleteModalOpen, setisConfirmDeleteModalOpen] = useState(false)
 
     useEffect(() => {
         setIsClient(true)
@@ -84,60 +85,88 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
         }
     };
 
-    const isAdmin = currentUser?.role=='admin'
+    const isAdmin = currentUser?.role == 'admin'
+
+
+    const SkillRemoveConfirmModal: FunctionComponent<{
+        onConfirm: () => void
+        onClose: () => void
+    }> = ({ onConfirm, onClose }) => {
+
+        return <EuiModal onClose={onClose}>
+            <EuiModalHeaderTitle>
+                <EuiText style={{ padding: '10px' }}>Are you sure to delete it?</EuiText>
+            </EuiModalHeaderTitle>
+
+            <EuiModalBody>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <EuiButton size="s" color="danger" onClick={onConfirm}>Confirm</EuiButton>
+                    <EuiButton size="s" color="text" onClick={onClose}>Cancel</EuiButton>
+                </div>
+            </EuiModalBody>
+
+        </EuiModal>
+    }
 
     const getExpandedRowContent = (client1: ClientRecord) => {
-        console.log("client record skill",client1)
+        const arrSkillsets = client1.arrSkillsets?.filter(r => r.skillset.length > 0)
+        console.log("arr skill sets:",arrSkillsets, arrSkillsets?.length==0)
         return (
-            <EuiFlexGroup>
-                <EuiFlexItem>
-                    <div>
-                        {client1.arrSkillsets !== undefined && client1.arrSkillsets.length != 0 && client1.arrSkillsets.map((client, skillIdx) => {
-                            return <div key={skillIdx} style={{ fontSize: '13px' }}>
-                                {client?.skillset && client.skillset.length > 0 && <Fragment>
-                                    <strong><span style={{ color: 'darkorange' }}> Request: {skillIdx + 1}</span></strong>
-                                    <EuiFlexGroup alignItems="center">
-                                        <strong style={{ color: 'green' }}>Skillsets:</strong>
-                                        <div style={{ display: 'flex' }}>
-                                            <EuiIcon type={'pencil'} cursor='pointer' aria-label="editSkillset" onClick={() => {
-                                                setEditSkillModalOpen({
-                                                    isOpen: true,
-                                                    updatableClient: client1,
-                                                    skillSetId: client._id || '',
-                                                    isAdd:false
-                                                })
-                                            }} color="green" size="m" />
-                                            <div style={{ width: '10px' }}></div>
-                                            <EuiIcon type={'trash'} color="red" cursor='pointer' aria-label="deleteSkillset" onClick={() => {
-                                                removeSkillSetFromArray(client1, client._id || '')
-                                            }} size="m" />
-                                        </div>
-                                    </EuiFlexGroup>
-                                    {client?.skillset.map((category, index) => (
-                                        <div key={index} >
-                                            <strong style={{ color: 'darkred' }}>-- {category.category} --</strong>
-                                            {category.technologies.map((tech, subIndex) => (
-                                                // <div key={subIndex} >
-                                                //     <EuiFlexGroup >
-                                                //         <EuiFlexItem grow={false}>
-                                                //             <strong>{subIndex + 1}.{subcategory.subcategory}:&nbsp;</strong>
-                                                //         </EuiFlexItem>
-                                                //         {subcategory.items.map((item, itemIndex) => (
-                                                //             <EuiFlexItem key={itemIndex} grow={false}>
-                                                //                 <p> {item.techName} ({item.quantity})</p>
-                                                //             </EuiFlexItem>
-                                                //         ))}
-                                                //     </EuiFlexGroup>
-                                                // </div>
-                                                <EuiFlexItem key={subIndex} grow={false}>
+            <EuiFlexGroup style={{gap:'50px'}}>
+               {(arrSkillsets && arrSkillsets?.length>0) && <div style={{ maxHeight: '400px', maxWidth: '70vw', padding: '10px', paddingRight: '30px', display: 'flex', flexWrap: 'wrap', gap: 50, overflow: 'scroll' }}>
+                    {arrSkillsets !== undefined && arrSkillsets.length != 0 && arrSkillsets.map((client, skillIdx) => {
+                        return <div key={skillIdx} style={{ fontSize: '13px' }}>
+                            {client?.skillset && client.skillset.length > 0 && <Fragment>
+                                {isConfirmDeleteModalOpen && <SkillRemoveConfirmModal onClose={() => setisConfirmDeleteModalOpen(false)} onConfirm={() => {
+                                    removeSkillSetFromArray(client1, client._id || '');
+                                    setisConfirmDeleteModalOpen(false)
+                                }
+                                } />
+                                }
+                                <strong><span style={{ color: 'darkorange' }}> Request: {skillIdx + 1}</span></strong>
+                                <EuiFlexGroup alignItems="center">
+                                    <strong style={{ color: 'green' }}>Skillsets:</strong>
+                                    <div style={{ display: 'flex' }}>
+                                        <EuiIcon type={'pencil'} cursor='pointer' aria-label="editSkillset" onClick={() => {
+                                            setEditSkillModalOpen({
+                                                isOpen: true,
+                                                updatableClient: client1,
+                                                skillSetId: client._id || '',
+                                                isAdd: false
+                                            })
+                                        }} color="green" size="m" />
+                                        <div style={{ width: '10px' }}></div>
+                                        <EuiIcon type={'trash'} color="red" cursor='pointer' aria-label="deleteSkillset" onClick={() => {
+                                            // removeSkillSetFromArray(client1, client._id || '')
+                                            setisConfirmDeleteModalOpen(true)
+                                        }} size="m" />
+                                    </div>
+                                </EuiFlexGroup>
+                                {client?.skillset.map((category, index) => (
+                                    <div key={index} >
+                                        <strong style={{ color: 'darkred' }}>-- {category.category} --</strong>
+                                        {category.technologies.map((tech, subIndex) => (
+                                            // <div key={subIndex} >
+                                            //     <EuiFlexGroup >
+                                            //         <EuiFlexItem grow={false}>
+                                            //             <strong>{subIndex + 1}.{subcategory.subcategory}:&nbsp;</strong>
+                                            //         </EuiFlexItem>
+                                            //         {subcategory.items.map((item, itemIndex) => (
+                                            //             <EuiFlexItem key={itemIndex} grow={false}>
+                                            //                 <p> {item.techName} ({item.quantity})</p>
+                                            //             </EuiFlexItem>
+                                            //         ))}
+                                            //     </EuiFlexGroup>
+                                            // </div>
+                                            <EuiFlexItem key={subIndex} grow={false}>
                                                 <p> {tech.tech} ({tech.quantity})</p>
                                             </EuiFlexItem>
-                                            ))}
-                                        </div>
-                                    ))}
-                                </Fragment>
-                                }
-                                {/* {(client?.customTechsData != null && client?.customTechsData.length != 0) &&
+                                        ))}
+                                    </div>
+                                ))}
+                            </Fragment>
+                            }
+                            {/* {(client?.customTechsData != null && client?.customTechsData.length != 0) &&
                                     <div>
                                         <strong style={{ color: 'green' }}>Custom Skillsets: &nbsp;</strong>
                                         <EuiFlexGroup wrap={true} responsive={true}>
@@ -149,31 +178,33 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                                         </EuiFlexGroup>
                                     </div>
                                 } */}
-                                <EuiSpacer size="s" />
-                            </div>
+                            <EuiSpacer size="s" />
+                        </div>
 
-                        })}
-                    </div>
+                    })}
+                </div>}
 
-                    {client1.arrSkillsets == undefined || client1.arrSkillsets.length == 0 || (client1.arrSkillsets.length==1 && client1.arrSkillsets[0].skillset.length==0  ) && <div style={{display:'flex',gap:5}}>
-                        Sorry, client did not choose any technologies.
-                        <EuiButton size="s" onClick={() => {
-                                                setEditSkillModalOpen({
-                                                    isOpen: true,
-                                                    updatableClient: client1,
-                                                    skillSetId: 'newItem',
-                                                    isAdd:true
-                                                })
-                                            }} >Add</EuiButton>
-                    </div>}
-                </EuiFlexItem>
+                {arrSkillsets?.length==0 && <div style={{ display: 'flex', gap: 5 }}>
+                    <div style={{display:'block'}}>
+                  <EuiText size="s">Sorry, client did not choose any technologies.</EuiText> 
+                    <EuiBadge onClickAriaLabel="adding-skill"  onClick={() => {
+                        setEditSkillModalOpen({
+                            isOpen: true,
+                            updatableClient: client1,
+                            skillSetId: 'newItem',
+                            isAdd: true
+                        })
+                    }} >Add +</EuiBadge>
+                </div>
 
-                <EuiFlexItem>
-                    <div style={{ fontSize: '13px' }}>
-                        <strong style={{ color: 'green' }}>Client Requirements:</strong>
-                        <div><p>{client1.reason}</p></div>
-                    </div>
-                </EuiFlexItem>
+                </div>
+                }
+
+                <div style={{ fontSize: '13px', textWrap: 'wrap' }}>
+                    <strong style={{ color: 'green' }}>Client Requirements:</strong>
+                    <div><p>{client1.reason}</p></div>
+                </div>
+
             </EuiFlexGroup>
         );
     };
@@ -255,9 +286,14 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
             sortable: false,
             render: (remarks: string) => (remarks && remarks.length > 0 ? remarks : '-')
         },
-
         {
-            name: isAdmin ? 'Actions':'Edit',
+            field:'createdAt',
+            name:'Requested Date',
+            sortable:true,
+            render: (requestedDate:Date) => <p>{requestedDate?.toLocaleDateString() || new Date().toLocaleDateString()} {requestedDate?.toLocaleTimeString() || new Date().toLocaleTimeString()}</p>
+        },
+        {
+            name: isAdmin ? 'Actions' : 'Edit',
             actions: [
                 {
                     name: 'Edit',
@@ -268,7 +304,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                 },
                 {
                     name: 'Delete',
-                    available:()=>isAdmin,
+                    available: () => isAdmin,
                     description: 'Delete this client',
                     type: 'icon',
                     icon: 'trash',
@@ -388,7 +424,7 @@ const ClientTableArrSkillSets: FunctionComponent<ClientTableProps> = ({
                     isOpen,
                     skillSetId: '',
                     updatableClient: undefined,
-                    isAdd:false
+                    isAdd: false
                 })} skillSetId={editSkillModalOpen.skillSetId} updatbaleClient={editSkillModalOpen.updatableClient} />}
 
 

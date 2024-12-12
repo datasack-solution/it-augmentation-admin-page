@@ -39,14 +39,18 @@ interface ClientAPI{
     addClient: (clientRecord:ClientRecord)=>Promise<void>
 }
 
-// const url = 'https://it-augmentation-server.vercel.app'
-const url = 'http://localhost:4000'
+const url = 'https://it-augmentation-server.vercel.app'
+// const url = 'http://localhost:4000'
 
 class ClientAPIService implements ClientAPI{
    async getClients (): Promise<ClientRecord[]>{
         const res = await axios.get(`${url}/clientsNew`)
-        return res.data
+        return res.data.map((client: ClientRecord) => ({
+            ...client,
+            createdAt: client.createdAt ? new Date(client.createdAt) : undefined,
+        }));
     }
+    
    async updateClient (clientRecord: ClientRecord):Promise<void>{
     return await axios.put(`${url}/clientsNew/${clientRecord.email}`,clientRecord)
    }

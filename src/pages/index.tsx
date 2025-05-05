@@ -1,9 +1,10 @@
 import ClientTableArrSkillSets from "@/components/ClientTableArrSkillSets"
-import UsersTable from "@/components/UserTable"
 import ForgetPasswordModal from "@/components/ForgetPasswordModal"
+import UsersTable from "@/components/UserTable"
 import { useAuthUser } from "@/utils/adminHook"
 import { EuiBadge, EuiButton, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiImage, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiPageTemplate, EuiSpacer, EuiText, EuiTitle } from "@elastic/eui"
 import Head from "next/head"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Fragment, FunctionComponent, useEffect, useState } from "react"
 
@@ -94,9 +95,11 @@ const AdminHomePage: FunctionComponent = () => {
                 </EuiPageTemplate.Header>
 
 
+
                 <EuiPageTemplate.Section grow={false} bottomBorder={true}>
                     <EuiFlexGroup>
                         <EuiFlexItem >
+                            
                             <div>
                             <p style={{ fontWeight: 'bold',fontSize:'12px'}}>Name: <span style={{ color: 'green', textTransform:'capitalize' }}>{currentUser?.userName},</span></p>
                             <p style={{ fontWeight: 'bold', fontSize:'12px'}}>Role: <span style={{ color: 'green', textTransform:'capitalize'}}>{currentUser?.role}</span></p>
@@ -110,6 +113,11 @@ const AdminHomePage: FunctionComponent = () => {
                         </EuiFlexItem>
                     </EuiFlexGroup>
                     <EuiSpacer size="s" />
+
+                                <div className="w-full py-5">
+                    <Link className="text-blue-500 font-semibold "  href={'/tracking'}>Go To Analytics <EuiIcon  type={'stats'}/><EuiIcon  type={'arrowRight'}/></Link>
+                    </div>
+
                     <ClientTableArrSkillSets  currentUser={currentUser}/> 
                 </EuiPageTemplate.Section>
 

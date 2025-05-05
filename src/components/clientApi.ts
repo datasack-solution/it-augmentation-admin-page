@@ -30,6 +30,21 @@ import axios from "axios";
 // }
 
 
+export interface TrackingData {
+    _id: string
+    country?: string;
+    city?: string;
+    visitDate: string;
+    page: string;
+    browserInfo: {
+      userAgent: string;
+      platform: string;
+      language: string;
+    };
+    scrollPercent: number;
+    sessionDuration: number; // in milliseconds
+    clickEvents: string[];   // Array of clicked element labels
+  }
 
 
 interface ClientAPI{
@@ -37,6 +52,7 @@ interface ClientAPI{
     updateClient:(clientRecord:ClientRecord)=>Promise<void>
     deleteClient: (clientEmail:string)=>Promise<void>
     addClient: (clientRecord:ClientRecord)=>Promise<void>
+    trackingDetails: ()=>Promise<{tracks:TrackingData[], message:string}>
 }
 
 const  BASE_URL = process.env.NODE_ENV=='development'?'http://localhost:4000':'https://it-augmentation-server.vercel.app' 
@@ -60,6 +76,11 @@ class ClientAPIService implements ClientAPI{
 
    async deleteClient (clientEmail: string): Promise<void>{
     return await axios.delete(`${BASE_URL}/clientsNew/${clientEmail}`)
+   }
+
+   async trackingDetails(): Promise<{tracks:TrackingData[],message:string}>{
+    const res = await axios.get(`${BASE_URL}/tracking`)
+    return res.data
    }
 }
 

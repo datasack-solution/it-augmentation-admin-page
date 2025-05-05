@@ -23,6 +23,20 @@ export const useGetClientRecords = (refetchInterval?: number) => {
   }
  
 
+
+export const useGetTrackingDetails = (refetchInterval?: number) => {
+  return  useQuery({
+      queryKey: ['trackingDetails'],
+      queryFn: async () => {
+        const res =await clientApi.trackingDetails()
+        return res
+      },
+      onError:(e:AxiosError<AxiosErrorType>)=>e,
+      refetchInterval,
+    })
+}
+
+
     
   export const useUpdateClientMutation = () => {
     const queryClient = useQueryClient();

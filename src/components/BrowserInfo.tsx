@@ -1,10 +1,12 @@
 import React from 'react';
-import { BrowserView, MobileView, isBrowser, isMobile } from 'react-device-detect';
 import { FaChrome, FaFirefox, FaSafari, FaEdge, FaApple, FaWindows, FaLinux, FaAndroid, FaDesktop, FaMobileAlt } from 'react-icons/fa';
 import { TrackingData } from './clientApi';
 
 // Function to parse and map browser info to icons
 const getBrowserInfo = (userAgent:string, platform:string, language:string) => {
+  // Log the userAgent for debugging
+  console.log('UserAgent:', userAgent);
+
   // Browser detection
   let browserName = 'Unknown';
   let BrowserIcon = FaChrome; // Default icon
@@ -31,10 +33,10 @@ const getBrowserInfo = (userAgent:string, platform:string, language:string) => {
   } else if (platform.includes('Mac')) {
     osName = 'macOS';
     OsIcon = FaApple;
-  } else if (platform.includes('Linux')) {
+  } else if (platform.includes('Linux') && !userAgent.toLowerCase().includes('android')) {
     osName = 'Linux';
     OsIcon = FaLinux;
-  } else if (platform.includes('Android')) {
+  } else if (userAgent.toLowerCase().includes('android')) {
     osName = 'Android';
     OsIcon = FaAndroid;
   } else if (platform.includes('iPhone') || platform.includes('iPad')) {
@@ -45,10 +47,17 @@ const getBrowserInfo = (userAgent:string, platform:string, language:string) => {
   // Device detection
   let deviceName = 'Unknown';
   let DeviceIcon = FaDesktop; // Default icon
-  if (isMobile) {
-    deviceName = platform.includes('iPhone') ? 'iPhone' : platform.includes('iPad') ? 'iPad' : 'Mobile';
+  const isMobileDevice = /Mobi|Android|iPhone|iPad/i.test(userAgent); // Explicit mobile check
+  if (isMobileDevice) {
+    if (platform.includes('iPhone')) {
+      deviceName = 'iPhone';
+    } else if (platform.includes('iPad')) {
+      deviceName = 'iPad';
+    } else {
+      deviceName = 'Mobile';
+    }
     DeviceIcon = FaMobileAlt;
-  } else if (isBrowser) {
+  } else {
     deviceName = 'Desktop';
     DeviceIcon = FaDesktop;
   }

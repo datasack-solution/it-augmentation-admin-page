@@ -7,6 +7,19 @@ import { useGetTrackingDetails } from './hook';
 import { EuiIcon, EuiProgress, EuiSpacer } from '@elastic/eui';
 import Link from 'next/link';
 
+
+function randomColor() {
+  return "#" + Math.random().toString(16).slice(2,8);
+}
+
+function colorGenerator(length:number){
+  let colors=[]
+  for (let i=0; i<length; i++){
+    colors.push(randomColor())
+  }
+  return colors
+}
+
 const MetricsCard: React.FC<{ title: string; value: string | number; icon: string; index: number }> = ({ title, value, icon, index }) => (
   <motion.div
     className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 p-6 rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl"
@@ -26,18 +39,6 @@ const MetricsCard: React.FC<{ title: string; value: string | number; icon: strin
   </motion.div>
 );
 
-function randomColor() {
-  return "#" + Math.random().toString(16).slice(2,8);
-}
-
-function colorGenerator(length:number){
-  let colors=[]
-  for (let i=0; i<length; i++){
-    colors.push(randomColor())
-  }
-  return colors
-}
-
 
 const CountryPieChart: React.FC<{ data: TrackingData[] }> = ({ data }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,7 +54,6 @@ const CountryPieChart: React.FC<{ data: TrackingData[] }> = ({ data }) => {
       labels: Object.keys(countryCounts),
       datasets: [{
         data: Object.values(countryCounts),
-        // backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444'],
         backgroundColor: colorGenerator(data.length),
         borderColor: '#ffffff',
         borderWidth: 2,
@@ -101,10 +101,6 @@ const CountryPieChart: React.FC<{ data: TrackingData[] }> = ({ data }) => {
   return (
     <motion.div
       className="p-10 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900"
-    //   initial={{ opacity: 0, scale: 0.9 }}
-    //   animate={{ opacity: 1, scale: 1 }}
-    //   transition={{ duration: 0.8, ease: 'easeOut' }}
-    //   whileHover={{ rotate: 2 }}
     >
       <canvas ref={canvasRef} className="max-w-full" />
     </motion.div>
@@ -112,7 +108,7 @@ const CountryPieChart: React.FC<{ data: TrackingData[] }> = ({ data }) => {
 };
 
 const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
-  const [sortConfig, setSortConfig] = useState<{ key: keyof TrackingData; direction: 'asc' | 'desc' }>({ key: 'country', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<{ key: keyof TrackingData; direction: 'asc' | 'desc' }>({ key: 'visitDate', direction: 'desc' });
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   const sortedData = useMemo(() => {

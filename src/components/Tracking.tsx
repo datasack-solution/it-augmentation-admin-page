@@ -26,6 +26,19 @@ const MetricsCard: React.FC<{ title: string; value: string | number; icon: strin
   </motion.div>
 );
 
+function randomColor() {
+  return "#" + Math.random().toString(16).slice(2,8);
+}
+
+function colorGenerator(length:number){
+  let colors=[]
+  for (let i=0; i<length; i++){
+    colors.push(randomColor())
+  }
+  return colors
+}
+
+
 const CountryPieChart: React.FC<{ data: TrackingData[] }> = ({ data }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -40,7 +53,8 @@ const CountryPieChart: React.FC<{ data: TrackingData[] }> = ({ data }) => {
       labels: Object.keys(countryCounts),
       datasets: [{
         data: Object.values(countryCounts),
-        backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444'],
+        // backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444'],
+        backgroundColor: colorGenerator(data.length),
         borderColor: '#ffffff',
         borderWidth: 2,
         hoverOffset: 30
@@ -126,7 +140,7 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
 
   return (
     <motion.div
-      className="bg-white overflow-auto dark:bg-gray-800 p-10 rounded-2xl shadow-lg"
+      className="bg-white overflow-auto  dark:bg-gray-800 p-10 rounded-2xl shadow-lg"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.8, delay: 0.3 }}
@@ -151,7 +165,7 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
             <th className="px-6 py-4"></th>
           </tr>
         </thead>
-        <tbody className="divide-y overflow-auto divide-gray-200 dark:divide-gray-700">
+        <tbody className="divide-y overflow-auto divide-gray-200 dark:divide-gray-700"> 
           {sortedData.map((item, index) => (
             <React.Fragment key={item._id}>
               <motion.tr
@@ -219,7 +233,7 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
 
 const Tracking: React.FC = () => {
     const {data,isLoading} = useGetTrackingDetails()
-    const trackingData = data?.tracks || []
+    const trackingData = (data?.tracks || []).filter(r=>r.country!=='Unknown')
 
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string>('All');
@@ -252,7 +266,7 @@ const Tracking: React.FC = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-      >
+      > 
         <div className="flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-0">Analytics Dashboard</h1>
           <div className="flex items-center space-x-4">

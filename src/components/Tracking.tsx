@@ -234,7 +234,7 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
                           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Click Events</h4>
                           <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc pl-4">
                             {item.clickEvents.map((event, idx) => (
-                              <li key={idx}>{event.substring(0, 50)}...</li>
+                              <li key={idx}>{event}</li>
                             ))}
                           </ul>
                         </div>
@@ -327,6 +327,8 @@ const Tracking: React.FC = () => {
           <TrackingTable data={filteredData} />
         </div>
       </div>
+
+      {/* <AnalyticsChart data={trackingData}/> */}
     </div>
   );
 };

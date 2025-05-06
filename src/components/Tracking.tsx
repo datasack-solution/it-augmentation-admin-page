@@ -6,15 +6,16 @@ import { TrackingData } from './clientApi';
 import { useGetTrackingDetails } from './hook';
 import { EuiIcon, EuiProgress, EuiSpacer } from '@elastic/eui';
 import Link from 'next/link';
+import BrowserInfo from './BrowserInfo';
 
 
 function randomColor() {
-  return "#" + Math.random().toString(16).slice(2,8);
+  return "#" + Math.random().toString(16).slice(2, 8);
 }
 
-function colorGenerator(length:number){
-  let colors=[]
-  for (let i=0; i<length; i++){
+function colorGenerator(length: number) {
+  let colors = []
+  for (let i = 0; i < length; i++) {
     colors.push(randomColor())
   }
   return colors
@@ -141,15 +142,15 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.8, delay: 0.3 }}
     >
-        <h2
-            className="text-xl md:text-3xl p-5 font-semibold text-gray-800 dark:text-white mb-4"
-          >
-            Tracking Details
-          </h2>
+      <h2
+        className="text-xl md:text-3xl p-5 font-semibold text-gray-800 dark:text-white mb-4"
+      >
+        Tracking Details
+      </h2>
       <table className="min-w-full overflow-auto divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gradient-to-r from-indigo-600 to-indigo-800">
           <tr>
-            {(['country', 'city', 'visitDate', 'scroll (%)', 'sessionDuration', 'clickEvents'] as (keyof TrackingData)[]).map((key) => (
+            {(['country', 'city', 'region', 'postal', 'visitDate', 'location', 'scroll (%)', 'sessionDuration', 'clickEvents'] as (keyof TrackingData)[]).map((key) => (
               <th
                 key={key}
                 onClick={() => requestSort(key)}
@@ -161,7 +162,7 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
             <th className="px-6 py-4"></th>
           </tr>
         </thead>
-        <tbody className="divide-y overflow-auto divide-gray-200 dark:divide-gray-700"> 
+        <tbody className="divide-y overflow-auto divide-gray-200 dark:divide-gray-700">
           {sortedData.map((item, index) => (
             <React.Fragment key={item._id}>
               <motion.tr
@@ -173,10 +174,32 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{item.country || 'N/A'}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{item.city || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{item.region || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{item.postal || 'N/A'}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                   {/* {new Date(item.visitDate).toLocaleString()} */}
                   {moment(item.visitDate).format('DD-MM-YYYY hh:mm a')}
                 </td>
+                {/* <td
+                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 cursor-pointer transition-transform duration-300 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => window.open(`https://www.google.com/maps?q=${item.location}`, '_blank')}
+                >
+                  {item.location || 'N/A'}
+                </td> */}
+
+<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+  
+ {item.location ? <button
+    className="ml-1 text-white rounded-full transition-transform duration-300 hover:scale-110 hover:bg-orange-200 focus:ring-4 "
+    onClick={() => window.open(`https://www.google.com/maps?q=${item.location}`, '_blank')}
+    title="View on Map"
+  >
+    <img src='location.svg' className='w-6 h-6 m-auto'/>
+  </button> : 'N/A'}
+</td>
+
+
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                   {item.scrollPercent.toFixed(2)}%
                 </td>
@@ -200,12 +223,13 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
                   >
                     <td colSpan={7} className="px-6 py-4 bg-gray-50 dark:bg-gray-900">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        {/* <div>
                           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Browser Info</h4>
                           <p className="text-sm text-gray-600 dark:text-gray-400">User Agent: {item.browserInfo.userAgent}</p>
                           <p className="text-sm text-gray-600 dark:text-gray-400">Platform: {item.browserInfo.platform}</p>
                           <p className="text-sm text-gray-600 dark:text-gray-400">Language: {item.browserInfo.language}</p>
-                        </div>
+                        </div> */}
+                        <BrowserInfo item={item} />
                         <div>
                           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Click Events</h4>
                           <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc pl-4">
@@ -228,8 +252,8 @@ const TrackingTable: React.FC<{ data: TrackingData[] }> = ({ data }) => {
 };
 
 const Tracking: React.FC = () => {
-    const {data,isLoading} = useGetTrackingDetails()
-    const trackingData = (data?.tracks || []).filter(r=>r.country!=='Unknown')
+  const { data, isLoading } = useGetTrackingDetails()
+  const trackingData = (data?.tracks || []).filter(r => r.country !== 'Unknown')
 
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [countryFilter, setCountryFilter] = useState<string>('All');
@@ -254,15 +278,15 @@ const Tracking: React.FC = () => {
           .glow { animation: glow 2s ease-in-out infinite; }
         `}
       </style>
-            <div className='py-5'> 
-      <Link className='font-semibold' href={'/'}><EuiIcon type={'arrowLeft'}/> Go Back</Link>
+      <div className='py-5'>
+        <Link className='font-semibold' href={'/'}><EuiIcon type={'arrowLeft'} /> Go Back</Link>
       </div>
       <motion.header
         className="mb-8 p-6 bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-2xl shadow-lg"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-      > 
+      >
         <div className="flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-0">Analytics Dashboard</h1>
           <div className="flex items-center space-x-4">
@@ -291,13 +315,13 @@ const Tracking: React.FC = () => {
         <MetricsCard title="Unique Countries" value={uniqueCountries} icon="🌍" index={2} />
       </div>
 
-      {isLoading && <EuiProgress size='xs'/>}
+      {isLoading && <EuiProgress size='xs' />}
 
-      <EuiSpacer/>
+      <EuiSpacer />
 
       <div className="flex flex-wrap gap-6">
         <div className='max-w-full md:max-w-1/3'>
-        <CountryPieChart data={filteredData} />
+          <CountryPieChart data={filteredData} />
         </div>
         <div className='w-full  md:w-3/4'>
           <TrackingTable data={filteredData} />

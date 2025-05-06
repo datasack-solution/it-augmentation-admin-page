@@ -30,21 +30,33 @@ import axios from "axios";
 // }
 
 
-export interface TrackingData {
-    _id: string
-    country?: string;
-    city?: string;
-    visitDate: string;
-    page: string;
-    browserInfo: {
-      userAgent: string;
-      platform: string;
-      language: string;
-    };
-    scrollPercent: number;
-    sessionDuration: number; // in milliseconds
-    clickEvents: string[];   // Array of clicked element labels
-  }
+  export interface TrackingData {
+      _id: string
+      country?: string;
+      city?: string;
+      region?:string;
+      location?:string;
+      postal?:string;
+      visitDate: string;
+      page: string;
+      browserInfo: {
+        userAgent: string;
+        platform: string;
+        language: string;
+      };
+      scrollPercent: number;
+      sessionDuration: number; // in milliseconds
+      clickEvents: string[];   // Array of clicked element labels
+    }
+
+  // "ip": "103.171.108.59",
+  // "city": "Karur",
+  // "region": "Tamil Nadu",
+  // "country": "IN",
+  // "loc": "10.9577,78.0810",
+  // "org": "AS141525 Inet Communication Internet Service Provider",
+  // "postal": "639102",
+  // "timezone": "Asia/Kolkata"
 
 
 interface ClientAPI{

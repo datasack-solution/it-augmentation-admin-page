@@ -5,8 +5,6 @@ import { TrackingData } from './clientApi';
 // Function to parse and map browser info to icons
 const getBrowserInfo = (userAgent:string, platform:string, language:string) => {
   // Log the userAgent for debugging
-  console.log('UserAgent:', userAgent);
-
   // Browser detection
   let browserName = 'Unknown';
   let BrowserIcon = FaChrome; // Default icon
@@ -43,7 +41,7 @@ const getBrowserInfo = (userAgent:string, platform:string, language:string) => {
     osName = 'iOS';
     OsIcon = FaApple;
   }
-
+  
   // Device detection
   let deviceName = 'Unknown';
   let DeviceIcon = FaDesktop; // Default icon
@@ -65,29 +63,31 @@ const getBrowserInfo = (userAgent:string, platform:string, language:string) => {
   return { browserName, BrowserIcon, osName, OsIcon, deviceName, DeviceIcon, language };
 };
 
-const BrowserInfo = ({ item }:{item:TrackingData}) => {
+const BrowserInfo = ({ item, isDarkMode }:{item:TrackingData, isDarkMode:boolean}) => {
   const { userAgent, platform, language } = item.browserInfo;
   const { browserName, BrowserIcon, osName, OsIcon, deviceName, DeviceIcon } = getBrowserInfo(userAgent, platform, language);
 
   return (
-    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm">
-      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Device Information</h4>
+    <div className={`py-2 ${isDarkMode ? "bg-gray-800":"bg-gray-50 "} rounded-lg shadow-sm`}>
+      <h4 
+      className={`text-sm ${isDarkMode ? "text-gray-200":"text-gray-600 "} mb-2`}>
+        Device Information</h4>
       <div className="space-y-2">
-        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-          <BrowserIcon className="mr-2 text-gray-500 dark:text-gray-400" size={20} />
+        <p className={`text-sm ${isDarkMode ? "text-gray-400":"text-gray-600 "} flex items-center`}>
+          <BrowserIcon className="mr-2 text-gray-500 dark:text-gray-400" size={17} />
           Browser: {browserName}
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-          <OsIcon className="mr-2 text-gray-500 dark:text-gray-400" size={20} />
+        <p className={`text-sm ${isDarkMode ? "text-gray-400":"text-gray-600 "} flex items-center`}>
+          <OsIcon className="mr-2 text-gray-500 dark:text-gray-400" size={17} />
           Operating System: {osName}
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-          <DeviceIcon className="mr-2 text-gray-500 dark:text-gray-400" size={20} />
+        <p className={`text-sm ${isDarkMode ? "text-gray-400":"text-gray-600 "} flex items-center`}>
+          <DeviceIcon className="mr-2 text-gray-500 dark:text-gray-400" size={17} />
           Device: {deviceName}
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        {/* <p className={`text-sm ${isDarkMode ? "text-gray-400":"text-gray-600 "}`}>
           Language: {language}
-        </p>
+        </p> */}
       </div>
     </div>
   );

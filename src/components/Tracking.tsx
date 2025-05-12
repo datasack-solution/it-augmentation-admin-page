@@ -158,7 +158,7 @@ const TrackingTable: React.FC<{ data: TrackingData[], isDarkMode: boolean }> = (
 
   return (
     <motion.div
-      className={`${isDarkMode ? "bg-slate-900" : "bg-white"} overflow-auto  dark:bg-gray-800 p-10 rounded-2xl shadow-lg`}
+      className={`${isDarkMode ? "bg-slate-900" : "bg-white"} overflow-auto  p-10 rounded-2xl shadow-lg`}
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.8, delay: 0.3 }}
@@ -168,7 +168,7 @@ const TrackingTable: React.FC<{ data: TrackingData[], isDarkMode: boolean }> = (
       >
         Tracking Details
       </h2>
-      <table className="min-w-full overflow-auto divide-y divide-gray-200 dark:divide-gray-700">
+      <table className="min-w-full overflow-auto divide-y divide-gray-200 ">
         <thead className="bg-gradient-to-r from-indigo-600 to-indigo-800">
           <tr>
             {(['country', 'city', 'region', 'postal', 'visitDate', 'location', 'scroll (%)', 'sessionDuration', 'clickEvents'] as (keyof TrackingData)[]).map((key) => (
@@ -183,7 +183,7 @@ const TrackingTable: React.FC<{ data: TrackingData[], isDarkMode: boolean }> = (
             <th className="px-6 py-4"></th>
           </tr>
         </thead>
-        <tbody className="divide-y overflow-auto divide-gray-200 dark:divide-gray-700">
+        <tbody className="divide-y overflow-auto divide-gray-200 ">
           {sortedData.map((item, index) => (
             <React.Fragment key={item._id}>
               <motion.tr
@@ -218,9 +218,6 @@ const TrackingTable: React.FC<{ data: TrackingData[], isDarkMode: boolean }> = (
                     <img src='location.svg' className='w-6 h-6 m-auto' />
                   </button> : 'N/A'}
                 </td>
-
-
-
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-200" : "text-gray-900 "}`}>
                   {item.scrollPercent.toFixed(2)}%
                 </td>
@@ -230,7 +227,7 @@ const TrackingTable: React.FC<{ data: TrackingData[], isDarkMode: boolean }> = (
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-200" : "text-gray-900 "}`}>
                   {item.clickEvents.join(', ').substring(0, 30)}...
                 </td>
-                <td className="px-6 py-4 text-sm text-indigo-600 dark:text-indigo-400">
+                <td className="px-6 py-4 text-sm text-indigo-600 ">
                   {expandedRow === item._id ? '▲' : '▼'}
                 </td>
               </motion.tr>
